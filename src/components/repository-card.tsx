@@ -54,6 +54,7 @@ interface RepositoryCardProps {
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (repoId: string) => void;
+  compact?: boolean;
 }
 
 const languageColors: Record<string, string> = {
@@ -87,6 +88,7 @@ export function RepositoryCard({
   selectMode,
   selected,
   onToggleSelect,
+  compact,
 }: RepositoryCardProps) {
   const repoLists = repository.lists || [];
   const availableLists = lists.filter(
@@ -98,7 +100,7 @@ export function RepositoryCard({
       className={`hover:shadow-md transition-shadow ${selected ? "ring-2 ring-primary" : ""}`}
       onClick={selectMode ? () => onToggleSelect?.(repository.id) : undefined}
     >
-      <CardContent className="p-4">
+      <CardContent className={compact ? "p-3" : "p-4"}>
         <div className="flex items-start justify-between gap-4">
           {/* Checkbox for select mode */}
           {selectMode && (
@@ -132,14 +134,14 @@ export function RepositoryCard({
             </div>
 
             {/* Description */}
-            {repository.description && (
+            {!compact && repository.description && (
               <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                 {repository.description}
               </p>
             )}
 
             {/* Meta Info */}
-            <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+            <div className={`flex items-center gap-4 ${compact ? "mt-1" : "mt-3"} text-sm text-muted-foreground`}>
               {repository.language && (
                 <div className="flex items-center gap-1">
                   <span

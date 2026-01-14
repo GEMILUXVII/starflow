@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FilterPopover, Filters } from "@/components/filter-popover";
+import { getPreferences, UserPreferences } from "@/lib/preferences";
 
 interface User {
   id: string;
@@ -76,6 +77,8 @@ export function StarsClient({ user }: { user: User }) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("starredAt");
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [compactView, setCompactView] = useState(false);
   const [showCreateList, setShowCreateList] = useState(false);
   const [editingList, setEditingList] = useState<{ id: string; name: string; color: string } | null>(null);
   const [page, setPage] = useState(1);
@@ -87,6 +90,16 @@ export function StarsClient({ user }: { user: User }) {
   const [noteRepo, setNoteRepo] = useState<{ id: string; name: string } | null>(null);
   const [readmeRepo, setReadmeRepo] = useState<{ id: string; name: string; url: string } | null>(null);
   const [filters, setFilters] = useState<Filters>({});
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+
+  // Load preferences on mount
+  useEffect(() => {
+    const prefs = getPreferences();
+    setSortBy(prefs.defaultSort);
+    setItemsPerPage(prefs.itemsPerPage);
+    setCompactView(prefs.compactView);
+    setPrefsLoaded(true);
+  }, []);
 
   const selectedList = searchParams.get("list") || undefined;
   const selectedLanguage = searchParams.get("language") || undefined;
@@ -117,7 +130,7 @@ export function StarsClient({ user }: { user: User }) {
       if (searchQuery) params.set("search", searchQuery);
       params.set("sort", sortBy);
       params.set("page", pageNum.toString());
-      params.set("limit", "50");
+      params.set("limit", itemsPerPage.toString());
 
       // Add advanced filters
       if (filters.minStars) params.set("minStars", filters.minStars.toString());
@@ -143,15 +156,16 @@ export function StarsClient({ user }: { user: User }) {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [selectedList, selectedLanguage, searchQuery, sortBy, filters]);
+  }, [selectedList, selectedLanguage, searchQuery, sortBy, filters, itemsPerPage]);
 
   // 当筛选条件变化时，重置并重新加载
   useEffect(() => {
+    if (!prefsLoaded) return;
     setPage(1);
     setRepositories([]);
     setHasMore(true);
     fetchRepositories(1, false);
-  }, [fetchRepositories]);
+  }, [fetchRepositories, prefsLoaded]);
 
   useEffect(() => {
     fetchStats();
@@ -472,6 +486,7 @@ export function StarsClient({ user }: { user: User }) {
                     selectMode={selectMode}
                     selected={selectedRepos.has(repo.id)}
                     onToggleSelect={handleToggleSelect}
+                    compact={compactView}
                   />
                 ))}
 

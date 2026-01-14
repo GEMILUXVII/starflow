@@ -9,5 +9,5 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  return <SettingsClient />;
+  return <SettingsClient user={session.user} />;
 }
