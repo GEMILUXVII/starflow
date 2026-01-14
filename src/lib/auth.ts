@@ -24,7 +24,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           login: string;
           avatar_url: string;
         };
-        
+
         // 更新用户的 GitHub 特定信息
         try {
           await prisma.user.update({

@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -24,7 +23,6 @@ import {
   Settings2,
   Github,
   Trash2,
-  RefreshCw,
   Keyboard,
   Info,
 } from "lucide-react";
@@ -51,7 +49,6 @@ export function SettingsClient({ user }: { user: User }) {
     compactView: false,
   });
   const [clearing, setClearing] = useState<string | null>(null);
-  const [reauthorizing, setReauthorizing] = useState(false);
 
   useEffect(() => {
     setPrefs(getPreferences());
@@ -174,32 +171,6 @@ export function SettingsClient({ user }: { user: User }) {
     }
   };
 
-  const handleReauthorize = async () => {
-    const message = `重新授权将执行以下操作：
-1. 退出当前账号
-2. 跳转到 GitHub 登录页面
-
-如果需要切换到其他 GitHub 账号，请确保：
-- 先在 GitHub 网站上退出当前账号，或
-- 使用浏览器的无痕模式
-
-是否继续？`;
-
-    if (!confirm(message)) return;
-    setReauthorizing(true);
-    try {
-      // 先退出登录
-      await signOut({ redirect: false });
-      // 等待一下确保退出完成
-      await new Promise(resolve => setTimeout(resolve, 500));
-      // 重新登录
-      await signIn("github", { callbackUrl: "/stars" });
-    } catch (error) {
-      console.error("Reauthorize error:", error);
-      setReauthorizing(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-2xl py-8 mx-auto px-4">
@@ -292,40 +263,20 @@ export function SettingsClient({ user }: { user: User }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {user.image && (
-                  <img
-                    src={user.image}
-                    alt=""
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <p className="font-medium">{user.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    @{user.username || user.email}
-                  </p>
-                </div>
+            <div className="flex items-center gap-3">
+              {user.image && (
+                <img
+                  src={user.image}
+                  alt=""
+                  className="w-10 h-10 rounded-full"
+                />
+              )}
+              <div>
+                <p className="font-medium">{user.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  @{user.username || user.email}
+                </p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReauthorize}
-                disabled={reauthorizing}
-              >
-                {reauthorizing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    重新授权中...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    重新授权
-                  </>
-                )}
-              </Button>
             </div>
           </CardContent>
         </Card>
