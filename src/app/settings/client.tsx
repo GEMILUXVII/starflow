@@ -81,7 +81,7 @@ export function SettingsClient() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-2xl py-8">
+      <div className="container max-w-2xl py-8 mx-auto px-4">
         <Button
           variant="ghost"
           className="mb-6"
