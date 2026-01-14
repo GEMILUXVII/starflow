@@ -14,7 +14,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           scope: "read:user user:email repo",
         },
       },
-      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
@@ -29,31 +28,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // 检查用户是否存在
         const existingUser = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { githubId: true }
+          select: { id: true }
         });
 
         // 如果用户不存在，跳过（让 adapter 先创建）
         if (!existingUser) {
           console.log("User not created yet, skipping update");
           return true;
-        }
-
-        // 如果 githubId 不同，说明切换了账号，清除旧数据
-        if (existingUser.githubId && existingUser.githubId !== githubProfile.id) {
-          console.log(`Switching account: ${existingUser.githubId} → ${githubProfile.id}`);
-
-          // 删除旧的 repositories、lists、notes
-          await prisma.userRepository.deleteMany({ where: { userId: user.id } });
-          await prisma.list.deleteMany({ where: { userId: user.id } });
-          await prisma.note.deleteMany({ where: { userId: user.id } });
-
-          // 删除旧的 Account 记录
-          await prisma.account.deleteMany({
-            where: {
-              userId: user.id,
-              provider: "github"
-            }
-          });
         }
 
         // 更新用户的 GitHub 特定信息
@@ -64,7 +45,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             username: githubProfile.login,
             avatarUrl: githubProfile.avatar_url,
             accessToken: account.access_token || "",
-            lastSyncAt: null, // 重置同步时间
           },
         });
       }
