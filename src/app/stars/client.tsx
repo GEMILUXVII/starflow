@@ -73,6 +73,8 @@ export function StarsClient({ user }: { user: User }) {
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedRepos, setSelectedRepos] = useState<Set<string>>(new Set());
 
   const selectedList = searchParams.get("list") || undefined;
   const selectedLanguage = searchParams.get("language") || undefined;
@@ -189,6 +191,50 @@ export function StarsClient({ user }: { user: User }) {
     }
   };
 
+  // 批量操作
+  const handleToggleSelect = (repoId: string) => {
+    setSelectedRepos((prev) => {
+      const next = new Set(prev);
+      if (next.has(repoId)) {
+        next.delete(repoId);
+      } else {
+        next.add(repoId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRepos.size === repositories.length) {
+      setSelectedRepos(new Set());
+    } else {
+      setSelectedRepos(new Set(repositories.map((r) => r.id)));
+    }
+  };
+
+  const handleBatchUnstar = async () => {
+    if (selectedRepos.size === 0) return;
+    if (!confirm(`确定要取消 ${selectedRepos.size} 个仓库的 Star 吗？此操作将同步到 GitHub。`)) return;
+
+    try {
+      // 逐个取消 Star
+      for (const repoId of selectedRepos) {
+        await fetch(`/api/repositories/${repoId}/star`, { method: "DELETE" });
+      }
+      setSelectedRepos(new Set());
+      setSelectMode(false);
+      await fetchRepositories(1, false);
+      await fetchStats();
+    } catch (error) {
+      console.error("Failed to batch unstar:", error);
+    }
+  };
+
+  const handleExitSelectMode = () => {
+    setSelectMode(false);
+    setSelectedRepos(new Set());
+  };
+
   const handleCreateList = async (name: string, color: string) => {
     try {
       await fetch("/api/lists", {
@@ -254,29 +300,67 @@ export function StarsClient({ user }: { user: User }) {
         <main className="flex-1 overflow-auto p-6">
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-semibold">
-              {selectedList
-                ? stats?.lists.find((l) => l.id === selectedList)?.name
-                : selectedLanguage
-                  ? selectedLanguage
-                  : "全部 Stars"}
-              {total > 0 && (
-                <span className="text-sm font-normal text-muted-foreground ml-2">
-                  ({repositories.length} / {total})
-                </span>
-              )}
-            </h1>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="starredAt">Star 时间</SelectItem>
-                <SelectItem value="stargazersCount">Stars 数量</SelectItem>
-                <SelectItem value="pushedAt">最近更新</SelectItem>
-                <SelectItem value="name">名称</SelectItem>
-              </SelectContent>
-            </Select>
+            {selectMode ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                    {selectedRepos.size === repositories.length ? "取消全选" : "全选"}
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    已选择 {selectedRepos.size} 项
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBatchUnstar}
+                    disabled={selectedRepos.size === 0}
+                  >
+                    取消 Star ({selectedRepos.size})
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExitSelectMode}>
+                    退出选择
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="text-xl font-semibold">
+                  {selectedList
+                    ? stats?.lists.find((l) => l.id === selectedList)?.name
+                    : selectedLanguage
+                      ? selectedLanguage
+                      : "全部 Stars"}
+                  {total > 0 && (
+                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                      ({repositories.length} / {total})
+                    </span>
+                  )}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectMode(true)}
+                    disabled={repositories.length === 0}
+                  >
+                    批量操作
+                  </Button>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="starredAt">Star 时间</SelectItem>
+                      <SelectItem value="stargazersCount">Stars 数量</SelectItem>
+                      <SelectItem value="pushedAt">最近更新</SelectItem>
+                      <SelectItem value="name">名称</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Repository List */}
@@ -302,6 +386,9 @@ export function StarsClient({ user }: { user: User }) {
                     onAddToList={handleAddToList}
                     onRemoveFromList={handleRemoveFromList}
                     onUnstar={handleUnstar}
+                    selectMode={selectMode}
+                    selected={selectedRepos.has(repo.id)}
+                    onToggleSelect={handleToggleSelect}
                   />
                 ))}
 

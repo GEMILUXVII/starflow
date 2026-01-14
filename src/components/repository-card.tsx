@@ -49,6 +49,9 @@ interface RepositoryCardProps {
   onRemoveFromList?: (repoId: string, listId: string) => void;
   onUnstar?: (repoId: string) => void;
   onOpenNote?: (repoId: string) => void;
+  selectMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (repoId: string) => void;
 }
 
 const languageColors: Record<string, string> = {
@@ -78,6 +81,9 @@ export function RepositoryCard({
   onRemoveFromList,
   onUnstar,
   onOpenNote,
+  selectMode,
+  selected,
+  onToggleSelect,
 }: RepositoryCardProps) {
   const repoLists = repository.lists || [];
   const availableLists = lists.filter(
@@ -85,9 +91,24 @@ export function RepositoryCard({
   );
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card
+      className={`hover:shadow-md transition-shadow ${selected ? "ring-2 ring-primary" : ""}`}
+      onClick={selectMode ? () => onToggleSelect?.(repository.id) : undefined}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
+          {/* Checkbox for select mode */}
+          {selectMode && (
+            <div className="flex items-center pt-1">
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => onToggleSelect?.(repository.id)}
+                onClick={(e) => e.stopPropagation()}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             {/* Repo Name */}
             <div className="flex items-center gap-2">
