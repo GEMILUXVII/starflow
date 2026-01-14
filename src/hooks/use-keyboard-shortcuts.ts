@@ -6,9 +6,10 @@ import { useTheme } from "next-themes";
 interface UseKeyboardShortcutsOptions {
   onSync?: () => void;
   searchInputRef?: React.RefObject<HTMLInputElement>;
+  scrollContainerRef?: React.RefObject<HTMLElement>;
 }
 
-export function useKeyboardShortcuts({ onSync, searchInputRef }: UseKeyboardShortcutsOptions) {
+export function useKeyboardShortcuts({ onSync, searchInputRef, scrollContainerRef }: UseKeyboardShortcutsOptions) {
   const { theme, setTheme } = useTheme();
   const lastKeyRef = useRef<string>("");
   const lastKeyTimeRef = useRef<number>(0);
@@ -56,7 +57,12 @@ export function useKeyboardShortcuts({ onSync, searchInputRef }: UseKeyboardShor
       if (e.key === "g") {
         if (lastKeyRef.current === "g" && now - lastKeyTimeRef.current < 500) {
           e.preventDefault();
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          const container = scrollContainerRef?.current || window;
+          if (container instanceof Window) {
+            container.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            container.scrollTo({ top: 0, behavior: "smooth" });
+          }
           lastKeyRef.current = "";
           return;
         }
@@ -68,7 +74,12 @@ export function useKeyboardShortcuts({ onSync, searchInputRef }: UseKeyboardShor
       // "G" - Go to bottom
       if (e.key === "G") {
         e.preventDefault();
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        const container = scrollContainerRef?.current || window;
+        if (container instanceof Window) {
+          container.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        } else {
+          container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+        }
         return;
       }
 

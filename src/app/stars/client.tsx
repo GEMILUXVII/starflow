@@ -93,6 +93,7 @@ export function StarsClient({ user }: { user: User }) {
   const [filters, setFilters] = useState<Filters>({});
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const scrollContainerRef = useRef<HTMLElement>(null);
 
   // Load preferences on mount
   useEffect(() => {
@@ -192,6 +193,7 @@ export function StarsClient({ user }: { user: User }) {
   useKeyboardShortcuts({
     onSync: handleSync,
     searchInputRef,
+    scrollContainerRef,
   });
 
   const handleAddToList = async (repoId: string, listId: string) => {
@@ -372,7 +374,7 @@ export function StarsClient({ user }: { user: User }) {
           onCreateList={() => setShowCreateList(true)}
           onEditList={(list) => setEditingList(list)}
         />
-        <main className="flex-1 overflow-auto p-6">
+        <main ref={scrollContainerRef} className="flex-1 overflow-auto p-6">
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-4">
             {selectMode ? (
