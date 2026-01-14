@@ -9,12 +9,10 @@ export async function DELETE() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Delete all notes for this user's repositories
+    // Delete all notes for this user
     await prisma.note.deleteMany({
       where: {
-        userRepository: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
       },
     });
 

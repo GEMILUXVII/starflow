@@ -167,6 +167,7 @@ export function SettingsClient({ user }: { user: User }) {
         setClearing("notes");
         try {
           await fetch("/api/notes", { method: "DELETE" });
+          router.refresh();
           setAlertMessage({
             open: true,
             title: "操作成功",
@@ -199,6 +200,7 @@ export function SettingsClient({ user }: { user: User }) {
         setClearing("lists");
         try {
           await fetch("/api/lists/all", { method: "DELETE" });
+          router.refresh();
           setAlertMessage({
             open: true,
             title: "操作成功",
