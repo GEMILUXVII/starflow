@@ -12,9 +12,7 @@ export async function POST() {
     // Delete all notes
     await prisma.note.deleteMany({
       where: {
-        userRepository: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
       },
     });
 
