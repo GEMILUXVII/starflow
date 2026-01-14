@@ -10,12 +10,12 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  email         String?   // 移除 @unique，允许多个 GitHub 账号共享邮箱
+  email         String?   @unique  // 恢复 unique 约束
   emailVerified DateTime?
   image         String?
 
   // GitHub 特定字段
-  githubId      Int?      @unique  // 通过 githubId 区分用户
+  githubId      Int?      @unique  // 通过 githubId 区分不同的 GitHub 账号
   username      String?
   avatarUrl     String?
   accessToken   String?
