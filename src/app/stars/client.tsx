@@ -6,6 +6,7 @@ import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { RepositoryCard } from "@/components/repository-card";
 import { CreateListDialog } from "@/components/create-list-dialog";
+import { EditListDialog } from "@/components/edit-list-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,7 @@ export function StarsClient({ user }: { user: User }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("starredAt");
   const [showCreateList, setShowCreateList] = useState(false);
+  const [editingList, setEditingList] = useState<{ id: string; name: string; color: string } | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
@@ -200,6 +202,34 @@ export function StarsClient({ user }: { user: User }) {
     }
   };
 
+  const handleEditList = async (id: string, name: string, color: string) => {
+    try {
+      await fetch(`/api/lists/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, color }),
+      });
+      await fetchStats();
+      await fetchRepositories(1, false);
+      setEditingList(null);
+    } catch (error) {
+      console.error("Failed to update list:", error);
+    }
+  };
+
+  const handleDeleteList = async (id: string) => {
+    try {
+      await fetch(`/api/lists/${id}`, {
+        method: "DELETE",
+      });
+      await fetchStats();
+      await fetchRepositories(1, false);
+      setEditingList(null);
+    } catch (error) {
+      console.error("Failed to delete list:", error);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col">
       <Header
@@ -217,6 +247,7 @@ export function StarsClient({ user }: { user: User }) {
           selectedList={selectedList}
           selectedLanguage={selectedLanguage}
           onCreateList={() => setShowCreateList(true)}
+          onEditList={(list) => setEditingList(list)}
         />
         <main className="flex-1 overflow-auto p-6">
           {/* Toolbar */}
@@ -307,6 +338,14 @@ export function StarsClient({ user }: { user: User }) {
         open={showCreateList}
         onOpenChange={setShowCreateList}
         onSubmit={handleCreateList}
+      />
+
+      <EditListDialog
+        open={!!editingList}
+        list={editingList}
+        onOpenChange={(open) => !open && setEditingList(null)}
+        onSubmit={handleEditList}
+        onDelete={handleDeleteList}
       />
     </div>
   );

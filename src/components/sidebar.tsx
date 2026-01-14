@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Plus,
   Code,
+  Pencil,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -32,6 +33,7 @@ interface SidebarProps {
   selectedList?: string;
   selectedLanguage?: string;
   onCreateList?: () => void;
+  onEditList?: (list: { id: string; name: string; color: string }) => void;
 }
 
 export function Sidebar({
@@ -42,6 +44,7 @@ export function Sidebar({
   selectedList,
   selectedLanguage,
   onCreateList,
+  onEditList,
 }: SidebarProps) {
   const pathname = usePathname();
   const [listsExpanded, setListsExpanded] = useState(true);
@@ -95,21 +98,35 @@ export function Sidebar({
             {listsExpanded && (
               <div className="mt-2 space-y-1">
                 {lists.map((list) => (
-                  <Link key={list.id} href={`/stars?list=${list.id}`}>
+                  <div key={list.id} className="flex items-center group">
+                    <Link href={`/stars?list=${list.id}`} className="flex-1 min-w-0">
+                      <Button
+                        variant={selectedList === list.id ? "secondary" : "ghost"}
+                        className="w-full justify-start"
+                      >
+                        <div
+                          className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                          style={{ backgroundColor: list.color }}
+                        />
+                        <span className="truncate">{list.name}</span>
+                        <Badge variant="secondary" className="ml-auto">
+                          {list.count}
+                        </Badge>
+                      </Button>
+                    </Link>
                     <Button
-                      variant={selectedList === list.id ? "secondary" : "ghost"}
-                      className="w-full justify-start"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onEditList?.({ id: list.id, name: list.name, color: list.color });
+                      }}
                     >
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: list.color }}
-                      />
-                      <span className="truncate">{list.name}</span>
-                      <Badge variant="secondary" className="ml-auto">
-                        {list.count}
-                      </Badge>
+                      <Pencil className="h-3 w-3" />
                     </Button>
-                  </Link>
+                  </div>
                 ))}
                 <Button
                   variant="ghost"
