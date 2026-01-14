@@ -51,6 +51,7 @@ export function SettingsClient({ user }: { user: User }) {
     compactView: false,
   });
   const [clearing, setClearing] = useState<string | null>(null);
+  const [reauthorizing, setReauthorizing] = useState(false);
 
   useEffect(() => {
     setPrefs(getPreferences());
@@ -173,6 +174,32 @@ export function SettingsClient({ user }: { user: User }) {
     }
   };
 
+  const handleReauthorize = async () => {
+    const message = `重新授权将执行以下操作：
+1. 退出当前账号
+2. 跳转到 GitHub 登录页面
+
+如果需要切换到其他 GitHub 账号，请确保：
+- 先在 GitHub 网站上退出当前账号，或
+- 使用浏览器的无痕模式
+
+是否继续？`;
+
+    if (!confirm(message)) return;
+    setReauthorizing(true);
+    try {
+      // 先退出登录
+      await signOut({ redirect: false });
+      // 等待一下确保退出完成
+      await new Promise(resolve => setTimeout(resolve, 500));
+      // 重新登录
+      await signIn("github", { callbackUrl: "/stars" });
+    } catch (error) {
+      console.error("Reauthorize error:", error);
+      setReauthorizing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-2xl py-8 mx-auto px-4">
@@ -284,10 +311,20 @@ export function SettingsClient({ user }: { user: User }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => signIn("github")}
+                onClick={handleReauthorize}
+                disabled={reauthorizing}
               >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                重新授权
+                {reauthorizing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    重新授权中...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    重新授权
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
