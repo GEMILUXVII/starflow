@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files
+.env
+.env*.local
 
 # vercel
 .vercel
@@ -39,3 +40,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma
+/prisma/*.db
+/prisma/*.db-journal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+tmpclaude-*
+dev.db
+dev.db-journal

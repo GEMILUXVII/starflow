@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  
+  // GitHub 特定字段
+  githubId      Int?      @unique
+  username      String?
+  avatarUrl     String?
+  accessToken   String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastSyncAt    DateTime?
+
+  lists         List[]
+  notes         Note[]
+  repositories  UserRepository[]
+
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Repository {
+  id              String   @id @default(cuid())
+  githubId        Int      @unique
+  fullName        String   @unique
+  name            String
+  owner           String
+  description     String?
+  language        String?
+  stargazersCount Int      @default(0)
+  forksCount      Int      @default(0)
+  isArchived      Boolean  @default(false)
+  htmlUrl         String
+  homepage        String?
+  topics          String   @default("[]")
+  pushedAt        DateTime?
+  repoCreatedAt   DateTime?
+  repoUpdatedAt   DateTime?
+
+  users UserRepository[]
+  notes Note[]
+}
+
+model UserRepository {
+  id           String   @id @default(cuid())
+  userId       String
+  repositoryId String
+  starredAt    DateTime @default(now())
+  isStarred    Boolean  @default(true)
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  lists      ListRepository[]
+
+  @@unique([userId, repositoryId])
+  @@index([userId])
+  @@index([repositoryId])
+}
+
+model List {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  color       String   @default("#6366f1")
+  icon        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repositories ListRepository[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model ListRepository {
+  id               String   @id @default(cuid())
+  listId           String
+  userRepositoryId String
+  addedAt          DateTime @default(now())
+
+  list           List           @relation(fields: [listId], references: [id], onDelete: Cascade)
+  userRepository UserRepository @relation(fields: [userRepositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, userRepositoryId])
+  @@index([listId])
+  @@index([userRepositoryId])
+}
+
+model Note {
+  id           String   @id @default(cuid())
+  userId       String
+  repositoryId String
+  content      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, repositoryId])
+  @@index([userId])
+  @@index([repositoryId])
+}
