@@ -17,6 +17,10 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get("order") || "desc";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "50");
+    const minStars = searchParams.get("minStars");
+    const maxStars = searchParams.get("maxStars");
+    const hasNotes = searchParams.get("hasNotes");
+    const isArchived = searchParams.get("isArchived");
 
     // 构建查询条件
     const where: any = {
@@ -46,6 +50,35 @@ export async function GET(request: NextRequest) {
           { fullName: { contains: search } },
           { description: { contains: search } },
         ],
+      };
+    }
+
+    // 按 Star 数量筛选
+    if (minStars || maxStars) {
+      where.repository = {
+        ...where.repository,
+        stargazersCount: {
+          ...(minStars ? { gte: parseInt(minStars) } : {}),
+          ...(maxStars ? { lte: parseInt(maxStars) } : {}),
+        },
+      };
+    }
+
+    // 按是否有笔记筛选
+    if (hasNotes === "true") {
+      where.note = { isNot: null };
+    }
+
+    // 按是否归档筛选
+    if (isArchived === "true") {
+      where.repository = {
+        ...where.repository,
+        isArchived: true,
+      };
+    } else if (isArchived === "false") {
+      where.repository = {
+        ...where.repository,
+        isArchived: false,
       };
     }
 

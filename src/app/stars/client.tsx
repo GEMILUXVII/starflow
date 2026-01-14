@@ -18,7 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, FolderPlus } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FilterPopover, Filters } from "@/components/filter-popover";
 
 interface User {
   id: string;
@@ -79,6 +86,7 @@ export function StarsClient({ user }: { user: User }) {
   const [selectedRepos, setSelectedRepos] = useState<Set<string>>(new Set());
   const [noteRepo, setNoteRepo] = useState<{ id: string; name: string } | null>(null);
   const [readmeRepo, setReadmeRepo] = useState<{ id: string; name: string; url: string } | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
 
   const selectedList = searchParams.get("list") || undefined;
   const selectedLanguage = searchParams.get("language") || undefined;
@@ -111,6 +119,12 @@ export function StarsClient({ user }: { user: User }) {
       params.set("page", pageNum.toString());
       params.set("limit", "50");
 
+      // Add advanced filters
+      if (filters.minStars) params.set("minStars", filters.minStars.toString());
+      if (filters.maxStars) params.set("maxStars", filters.maxStars.toString());
+      if (filters.hasNotes) params.set("hasNotes", "true");
+      if (filters.isArchived) params.set("isArchived", filters.isArchived);
+
       const res = await fetch(`/api/repositories?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
@@ -129,7 +143,7 @@ export function StarsClient({ user }: { user: User }) {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [selectedList, selectedLanguage, searchQuery, sortBy]);
+  }, [selectedList, selectedLanguage, searchQuery, sortBy, filters]);
 
   // 当筛选条件变化时，重置并重新加载
   useEffect(() => {
@@ -239,6 +253,26 @@ export function StarsClient({ user }: { user: User }) {
     setSelectedRepos(new Set());
   };
 
+  const handleBatchAddToList = async (listId: string) => {
+    if (selectedRepos.size === 0) return;
+
+    try {
+      for (const repoId of selectedRepos) {
+        await fetch(`/api/lists/${listId}/repositories`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ repositoryId: repoId }),
+        });
+      }
+      setSelectedRepos(new Set());
+      setSelectMode(false);
+      await fetchRepositories(1, false);
+      await fetchStats();
+    } catch (error) {
+      console.error("Failed to batch add to list:", error);
+    }
+  };
+
   const handleOpenNote = (repoId: string) => {
     const repo = repositories.find((r) => r.id === repoId);
     if (repo) {
@@ -329,6 +363,34 @@ export function StarsClient({ user }: { user: User }) {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
+                  {stats?.lists && stats.lists.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={selectedRepos.size === 0}
+                        >
+                          <FolderPlus className="h-4 w-4 mr-1" />
+                          添加到 List
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        {stats.lists.map((list) => (
+                          <DropdownMenuItem
+                            key={list.id}
+                            onClick={() => handleBatchAddToList(list.id)}
+                          >
+                            <span
+                              className="w-3 h-3 rounded-full mr-2"
+                              style={{ backgroundColor: list.color }}
+                            />
+                            {list.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                   <Button
                     variant="destructive"
                     size="sm"
@@ -365,6 +427,7 @@ export function StarsClient({ user }: { user: User }) {
                   >
                     批量操作
                   </Button>
+                  <FilterPopover filters={filters} onFiltersChange={setFilters} />
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-40">
                       <SelectValue />
