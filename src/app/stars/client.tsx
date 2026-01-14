@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/sidebar";
 import { RepositoryCard } from "@/components/repository-card";
 import { CreateListDialog } from "@/components/create-list-dialog";
 import { EditListDialog } from "@/components/edit-list-dialog";
+import { NoteDialog } from "@/components/note-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,6 +76,7 @@ export function StarsClient({ user }: { user: User }) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedRepos, setSelectedRepos] = useState<Set<string>>(new Set());
+  const [noteRepo, setNoteRepo] = useState<{ id: string; name: string } | null>(null);
 
   const selectedList = searchParams.get("list") || undefined;
   const selectedLanguage = searchParams.get("language") || undefined;
@@ -235,6 +237,13 @@ export function StarsClient({ user }: { user: User }) {
     setSelectedRepos(new Set());
   };
 
+  const handleOpenNote = (repoId: string) => {
+    const repo = repositories.find((r) => r.id === repoId);
+    if (repo) {
+      setNoteRepo({ id: repo.id, name: repo.fullName });
+    }
+  };
+
   const handleCreateList = async (name: string, color: string) => {
     try {
       await fetch("/api/lists", {
@@ -386,6 +395,7 @@ export function StarsClient({ user }: { user: User }) {
                     onAddToList={handleAddToList}
                     onRemoveFromList={handleRemoveFromList}
                     onUnstar={handleUnstar}
+                    onOpenNote={handleOpenNote}
                     selectMode={selectMode}
                     selected={selectedRepos.has(repo.id)}
                     onToggleSelect={handleToggleSelect}
@@ -435,6 +445,13 @@ export function StarsClient({ user }: { user: User }) {
         onOpenChange={(open) => !open && setEditingList(null)}
         onSubmit={handleEditList}
         onDelete={handleDeleteList}
+      />
+
+      <NoteDialog
+        open={!!noteRepo}
+        repositoryId={noteRepo?.id || null}
+        repositoryName={noteRepo?.name || ""}
+        onOpenChange={(open) => !open && setNoteRepo(null)}
       />
     </div>
   );
