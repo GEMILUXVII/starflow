@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ repositoryId: string }> }
+  { params }: { params: Promise<{ repoId: string }> }
 ) {
   try {
     const session = await auth();
@@ -12,12 +12,12 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { repositoryId } = await params;
+    const { repoId } = await params;
 
     // Get repository info
     const userRepo = await prisma.userRepository.findFirst({
       where: {
-        id: repositoryId,
+        id: repoId,
         userId: session.user.id,
       },
       include: {
