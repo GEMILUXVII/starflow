@@ -8,6 +8,7 @@ import { RepositoryCard } from "@/components/repository-card";
 import { CreateListDialog } from "@/components/create-list-dialog";
 import { EditListDialog } from "@/components/edit-list-dialog";
 import { NoteDialog } from "@/components/note-dialog";
+import { ReadmeDialog } from "@/components/readme-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,6 +78,7 @@ export function StarsClient({ user }: { user: User }) {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedRepos, setSelectedRepos] = useState<Set<string>>(new Set());
   const [noteRepo, setNoteRepo] = useState<{ id: string; name: string } | null>(null);
+  const [readmeRepo, setReadmeRepo] = useState<{ id: string; name: string; url: string } | null>(null);
 
   const selectedList = searchParams.get("list") || undefined;
   const selectedLanguage = searchParams.get("language") || undefined;
@@ -244,6 +246,13 @@ export function StarsClient({ user }: { user: User }) {
     }
   };
 
+  const handleOpenReadme = (repoId: string) => {
+    const repo = repositories.find((r) => r.id === repoId);
+    if (repo) {
+      setReadmeRepo({ id: repo.id, name: repo.fullName, url: repo.htmlUrl });
+    }
+  };
+
   const handleCreateList = async (name: string, color: string) => {
     try {
       await fetch("/api/lists", {
@@ -396,6 +405,7 @@ export function StarsClient({ user }: { user: User }) {
                     onRemoveFromList={handleRemoveFromList}
                     onUnstar={handleUnstar}
                     onOpenNote={handleOpenNote}
+                    onOpenReadme={handleOpenReadme}
                     selectMode={selectMode}
                     selected={selectedRepos.has(repo.id)}
                     onToggleSelect={handleToggleSelect}
@@ -452,6 +462,14 @@ export function StarsClient({ user }: { user: User }) {
         repositoryId={noteRepo?.id || null}
         repositoryName={noteRepo?.name || ""}
         onOpenChange={(open) => !open && setNoteRepo(null)}
+      />
+
+      <ReadmeDialog
+        open={!!readmeRepo}
+        repositoryId={readmeRepo?.id || null}
+        repositoryName={readmeRepo?.name || ""}
+        repositoryUrl={readmeRepo?.url || ""}
+        onOpenChange={(open) => !open && setReadmeRepo(null)}
       />
     </div>
   );

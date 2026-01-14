@@ -24,6 +24,7 @@ import {
   Trash2,
   FileText,
   Archive,
+  BookOpen,
 } from "lucide-react";
 
 interface Repository {
@@ -49,6 +50,7 @@ interface RepositoryCardProps {
   onRemoveFromList?: (repoId: string, listId: string) => void;
   onUnstar?: (repoId: string) => void;
   onOpenNote?: (repoId: string) => void;
+  onOpenReadme?: (repoId: string) => void;
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (repoId: string) => void;
@@ -81,6 +83,7 @@ export function RepositoryCard({
   onRemoveFromList,
   onUnstar,
   onOpenNote,
+  onOpenReadme,
   selectMode,
   selected,
   onToggleSelect,
@@ -217,9 +220,13 @@ export function RepositoryCard({
                   在 GitHub 打开
                 </a>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onOpenReadme?.(repository.id)}>
+                <BookOpen className="mr-2 h-4 w-4" />
+                查看 README
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onOpenNote?.(repository.id)}>
                 <FileText className="mr-2 h-4 w-4" />
-                添加笔记
+                笔记
               </DropdownMenuItem>
               {availableLists.length > 0 && (
                 <DropdownMenuSub>
