@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -60,10 +61,15 @@ export function StarsClient({ user }: { user: User }) {
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("starredAt");
   const [showCreateList, setShowCreateList] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [total, setTotal] = useState(0);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const selectedList = searchParams.get("list") || undefined;
   const selectedLanguage = searchParams.get("language") || undefined;
@@ -80,30 +86,53 @@ export function StarsClient({ user }: { user: User }) {
     }
   }, []);
 
-  const fetchRepositories = useCallback(async () => {
+  const fetchRepositories = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     try {
+      if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
       const params = new URLSearchParams();
       if (selectedList) params.set("listId", selectedList);
       if (selectedLanguage) params.set("language", selectedLanguage);
       if (searchQuery) params.set("search", searchQuery);
       params.set("sort", sortBy);
+      params.set("page", pageNum.toString());
+      params.set("limit", "50");
 
       const res = await fetch(`/api/repositories?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        setRepositories(data.repositories);
+        if (append) {
+          setRepositories(prev => [...prev, ...data.repositories]);
+        } else {
+          setRepositories(data.repositories);
+        }
+        setTotal(data.pagination.total);
+        setHasMore(pageNum < data.pagination.totalPages);
+        setPage(pageNum);
       }
     } catch (error) {
       console.error("Failed to fetch repositories:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  }, [selectedList, selectedLanguage, searchQuery, sortBy]);
+
+  // 当筛选条件变化时，重置并重新加载
+  useEffect(() => {
+    setPage(1);
+    setRepositories([]);
+    setHasMore(true);
+    fetchRepositories(1, false);
   }, [selectedList, selectedLanguage, searchQuery, sortBy]);
 
   useEffect(() => {
     fetchStats();
-    fetchRepositories();
-  }, [fetchStats, fetchRepositories]);
+  }, [fetchStats]);
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -111,7 +140,7 @@ export function StarsClient({ user }: { user: User }) {
       const res = await fetch("/api/repositories/sync", { method: "POST" });
       if (res.ok) {
         await fetchStats();
-        await fetchRepositories();
+        await fetchRepositories(1, false);
       }
     } catch (error) {
       console.error("Sync failed:", error);
@@ -127,7 +156,7 @@ export function StarsClient({ user }: { user: User }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repositoryId: repoId }),
       });
-      await fetchRepositories();
+      await fetchRepositories(1, false);
       await fetchStats();
     } catch (error) {
       console.error("Failed to add to list:", error);
@@ -139,7 +168,7 @@ export function StarsClient({ user }: { user: User }) {
       await fetch(`/api/lists/${listId}/repositories/${repoId}`, {
         method: "DELETE",
       });
-      await fetchRepositories();
+      await fetchRepositories(1, false);
       await fetchStats();
     } catch (error) {
       console.error("Failed to remove from list:", error);
@@ -150,7 +179,7 @@ export function StarsClient({ user }: { user: User }) {
     if (!confirm("确定要取消 Star 吗？此操作将同步到 GitHub。")) return;
     try {
       await fetch(`/api/repositories/${repoId}/star`, { method: "DELETE" });
-      await fetchRepositories();
+      await fetchRepositories(1, false);
       await fetchStats();
     } catch (error) {
       console.error("Failed to unstar:", error);
@@ -198,6 +227,11 @@ export function StarsClient({ user }: { user: User }) {
                 : selectedLanguage
                   ? selectedLanguage
                   : "全部 Stars"}
+              {total > 0 && (
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  ({repositories.length} / {total})
+                </span>
+              )}
             </h1>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-40">
@@ -226,16 +260,44 @@ export function StarsClient({ user }: { user: User }) {
                 </Button>
               </div>
             ) : (
-              repositories.map((repo) => (
-                <RepositoryCard
-                  key={repo.id}
-                  repository={repo}
-                  lists={stats?.lists || []}
-                  onAddToList={handleAddToList}
-                  onRemoveFromList={handleRemoveFromList}
-                  onUnstar={handleUnstar}
-                />
-              ))
+              <>
+                {repositories.map((repo) => (
+                  <RepositoryCard
+                    key={repo.id}
+                    repository={repo}
+                    lists={stats?.lists || []}
+                    onAddToList={handleAddToList}
+                    onRemoveFromList={handleRemoveFromList}
+                    onUnstar={handleUnstar}
+                  />
+                ))}
+
+                {/* Load More */}
+                {hasMore && (
+                  <div ref={loadMoreRef} className="flex justify-center py-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => fetchRepositories(page + 1, true)}
+                      disabled={loadingMore}
+                    >
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          加载中...
+                        </>
+                      ) : (
+                        `加载更多 (${repositories.length} / ${total})`
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                {!hasMore && repositories.length > 0 && (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    已加载全部 {total} 个仓库
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
