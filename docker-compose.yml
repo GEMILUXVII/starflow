@@ -1,0 +1,18 @@
+services:
+  starflow:
+    build: .
+    container_name: starflow
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/data/starflow.db
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+    volumes:
+      - starflow_data:/app/data
+
+volumes:
+  starflow_data:

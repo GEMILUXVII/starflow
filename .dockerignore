@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Development
+*.log
+npm-debug.log*
+.env
+.env.local
+.env.*.local
+
+# Database (local dev)
+*.db
+*.db-journal
+prisma/*.db
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Misc
+README.md
+.DS_Store
+Thumbs.db
