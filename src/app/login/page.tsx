@@ -1,5 +1,7 @@
 import { auth, signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -11,13 +13,16 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
       <Card className="w-[400px]">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl flex items-center justify-center gap-2">
-            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-            </svg>
+            <Image
+              src="/favicon.svg"
+              alt="Starflow Logo"
+              width={32}
+              height={32}
+            />
             Starflow
           </CardTitle>
           <CardDescription>
@@ -43,6 +48,17 @@ export default async function LoginPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Footer Links */}
+      <div className="mt-8 flex items-center gap-4 text-sm text-slate-400">
+        <Link href="/privacy" className="hover:text-slate-200 transition-colors">
+          隐私政策
+        </Link>
+        <span>·</span>
+        <Link href="/terms" className="hover:text-slate-200 transition-colors">
+          服务条款
+        </Link>
+      </div>
     </div>
   );
 }

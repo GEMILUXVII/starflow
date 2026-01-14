@@ -28,6 +28,7 @@ import {
 import { FilterPopover, Filters } from "@/components/filter-popover";
 import { getPreferences, UserPreferences } from "@/lib/preferences";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { Footer } from "@/components/footer";
 
 interface User {
   id: string;
@@ -533,6 +534,8 @@ export function StarsClient({ user }: { user: User }) {
             )}
         </main>
       </div>
+
+      <Footer />
 
       <CreateListDialog
         open={showCreateList}
