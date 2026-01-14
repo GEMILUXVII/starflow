@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkGithubAlerts from "remark-github-blockquote-alert";
 import rehypeRaw from "rehype-raw";
+import "remark-github-blockquote-alert/alert.css";
 import {
   Dialog,
   DialogContent,
@@ -94,7 +96,7 @@ export function ReadmeDialog({
           ) : content ? (
             <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0">
               <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkGithubAlerts]}
                 rehypePlugins={[rehypeRaw]}
                 components={{
                   a: ({ href, children }) => (
