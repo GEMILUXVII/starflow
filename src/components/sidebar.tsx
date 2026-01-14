@@ -65,7 +65,7 @@ export function Sidebar({
                 </Badge>
               </Button>
             </Link>
-            <Link href="/stars?filter=uncategorized">
+            <Link href="/stars?list=uncategorized">
               <Button
                 variant={selectedList === "uncategorized" ? "secondary" : "ghost"}
                 className="w-full justify-start"

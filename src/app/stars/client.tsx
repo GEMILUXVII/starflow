@@ -128,7 +128,7 @@ export function StarsClient({ user }: { user: User }) {
     setRepositories([]);
     setHasMore(true);
     fetchRepositories(1, false);
-  }, [selectedList, selectedLanguage, searchQuery, sortBy]);
+  }, [fetchRepositories]);
 
   useEffect(() => {
     fetchStats();
