@@ -154,15 +154,24 @@ export function RepositoryCard({
                   <Badge
                     key={list.id}
                     variant="secondary"
-                    className="text-xs cursor-pointer hover:opacity-80"
+                    className="text-xs group/badge"
                     style={{ borderColor: list.color }}
-                    onClick={() => onRemoveFromList?.(repository.id, list.id)}
                   >
                     <span
                       className="w-2 h-2 rounded-full mr-1"
                       style={{ backgroundColor: list.color }}
                     />
                     {list.name}
+                    <button
+                      className="ml-1 opacity-0 group-hover/badge:opacity-100 hover:text-destructive transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemoveFromList?.(repository.id, list.id);
+                      }}
+                      title="从此 List 移除"
+                    >
+                      ×
+                    </button>
                   </Badge>
                 ))}
               </div>
