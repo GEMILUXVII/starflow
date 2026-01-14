@@ -1,5 +1,6 @@
 "use client";
 
+import { forwardRef } from "react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
@@ -28,9 +29,10 @@ interface HeaderProps {
   isSyncing?: boolean;
   onSearch?: (query: string) => void;
   lastSyncAt?: string | null;
+  searchInputRef?: React.RefObject<HTMLInputElement>;
 }
 
-export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt }: HeaderProps) {
+export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchInputRef }: HeaderProps) {
   const router = useRouter();
 
   return (
@@ -49,8 +51,9 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt }: Header
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              ref={searchInputRef}
               type="search"
-              placeholder="搜索仓库..."
+              placeholder="搜索仓库... (按 / 聚焦)"
               className="pl-8"
               onChange={(e) => onSearch?.(e.target.value)}
             />

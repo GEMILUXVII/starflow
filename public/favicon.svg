@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <title>Starflow - Ink Blue Bone (Transparent)</title>
+
+  <defs>
+    <!-- dual halo: readable on both light/dark GitHub themes -->
+    <filter id="dualHalo" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#000000" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="2.0" flood-color="#FFFFFF" flood-opacity="0.22"/>
+    </filter>
+
+    <!-- Elegant blue tail (muted, not neon) -->
+    <linearGradient id="tail" x1="40" y1="196" x2="206" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E2A3A"/>  <!-- ink blue -->
+      <stop offset="0.62" stop-color="#57718D"/> <!-- slate blue -->
+      <stop offset="1" stop-color="#B9C7D6"/>  <!-- mist -->
+    </linearGradient>
+
+    <!-- Bone star -->
+    <linearGradient id="star" x1="148" y1="46" x2="226" y2="142" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF8EA"/>
+      <stop offset="0.70" stop-color="#F3EBDD"/>
+      <stop offset="1" stop-color="#D8C9B5"/>
+    </linearGradient>
+
+    <!-- Cut orbit/tails out of star area to remove "bumps" -->
+    <mask id="cutStar">
+      <rect width="256" height="256" fill="white"/>
+      <path d="M176 52l14.5 29.6 32.7 4.8-23.6 23 5.6 32.6L176 127.1l-29.2 15.5 5.6-32.6-23.6-23 32.7-4.8L176 52z" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- orbit + tails -->
+  <g mask="url(#cutStar)" filter="url(#dualHalo)">
+    <path d="M72 190c36 18 76 18 112-2 26-14 44-38 54-72"
+          stroke="#F3EBDD" stroke-width="10" stroke-linecap="round"
+          stroke-dasharray="22 16"/>
+    <path d="M44 176c50-10 92-36 140-86"
+          stroke="url(#tail)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M42 148c60-10 108-40 160-96"
+          stroke="#F3EBDD" stroke-width="10" stroke-linecap="round"
+          stroke-dasharray="12 16"/>
+  </g>
+
+  <!-- star -->
+  <path filter="url(#dualHalo)"
+        d="M176 52l14.5 29.6 32.7 4.8-23.6 23 5.6 32.6L176 127.1l-29.2 15.5 5.6-32.6-23.6-23 32.7-4.8L176 52z"
+        fill="url(#star)"/>
+</svg>

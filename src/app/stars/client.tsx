@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FilterPopover, Filters } from "@/components/filter-popover";
 import { getPreferences, UserPreferences } from "@/lib/preferences";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 interface User {
   id: string;
@@ -91,6 +92,7 @@ export function StarsClient({ user }: { user: User }) {
   const [readmeRepo, setReadmeRepo] = useState<{ id: string; name: string; url: string } | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Load preferences on mount
   useEffect(() => {
@@ -185,6 +187,12 @@ export function StarsClient({ user }: { user: User }) {
       setIsSyncing(false);
     }
   };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onSync: handleSync,
+    searchInputRef,
+  });
 
   const handleAddToList = async (repoId: string, listId: string) => {
     try {
@@ -351,6 +359,7 @@ export function StarsClient({ user }: { user: User }) {
         isSyncing={isSyncing}
         onSearch={setSearchQuery}
         lastSyncAt={stats?.lastSyncAt}
+        searchInputRef={searchInputRef}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
