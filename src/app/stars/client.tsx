@@ -55,6 +55,7 @@ interface Stats {
   uncategorizedCount: number;
   languages: Array<{ name: string; count: number }>;
   lists: List[];
+  lastSyncAt: string | null;
 }
 
 export function StarsClient({ user }: { user: User }) {
@@ -237,6 +238,7 @@ export function StarsClient({ user }: { user: User }) {
         onSync={handleSync}
         isSyncing={isSyncing}
         onSearch={setSearchQuery}
+        lastSyncAt={stats?.lastSyncAt}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

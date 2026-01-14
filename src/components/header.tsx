@@ -1,6 +1,8 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { formatDistanceToNow } from "date-fns";
+import { zhCN } from "date-fns/locale";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +25,10 @@ interface HeaderProps {
   onSync?: () => void;
   isSyncing?: boolean;
   onSearch?: (query: string) => void;
+  lastSyncAt?: string | null;
 }
 
-export function Header({ user, onSync, isSyncing, onSearch }: HeaderProps) {
+export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt }: HeaderProps) {
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex h-14 items-center px-4 gap-4">
@@ -51,6 +54,13 @@ export function Header({ user, onSync, isSyncing, onSearch }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
+          {/* Last Sync Time */}
+          {lastSyncAt && (
+            <span className="text-xs text-muted-foreground hidden sm:inline">
+              上次同步：{formatDistanceToNow(new Date(lastSyncAt), { addSuffix: true, locale: zhCN })}
+            </span>
+          )}
+
           {/* Sync Button */}
           <Button
             variant="outline"
