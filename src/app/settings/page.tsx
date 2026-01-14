@@ -6,7 +6,7 @@ export default async function SettingsPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/");
   }
 
   return <SettingsClient user={session.user} />;
