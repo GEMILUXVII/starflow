@@ -1,48 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
-  <title>Starflow - Ink Blue Bone (Transparent)</title>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <defs>
-    <!-- dual halo: readable on both light/dark GitHub themes -->
-    <filter id="dualHalo" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#000000" flood-opacity="0.28"/>
-      <feDropShadow dx="0" dy="0" stdDeviation="2.0" flood-color="#FFFFFF" flood-opacity="0.22"/>
-    </filter>
+    <style>
+      :root { --sf-accent:#0f766e; --sf-paper:#f8fafc; }
+    </style>
 
-    <!-- Elegant blue tail (muted, not neon) -->
-    <linearGradient id="tail" x1="40" y1="196" x2="206" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1E2A3A"/>  <!-- ink blue -->
-      <stop offset="0.62" stop-color="#57718D"/> <!-- slate blue -->
-      <stop offset="1" stop-color="#B9C7D6"/>  <!-- mist -->
-    </linearGradient>
+    <mask id="sfFlow" maskUnits="userSpaceOnUse">
+      <rect width="256" height="256" fill="#fff"/>
 
-    <!-- Bone star -->
-    <linearGradient id="star" x1="148" y1="46" x2="226" y2="142" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFF8EA"/>
-      <stop offset="0.70" stop-color="#F3EBDD"/>
-      <stop offset="1" stop-color="#D8C9B5"/>
-    </linearGradient>
+      <!-- upper slit -->
+      <path d="M 34.0 156.0 L 43.8 156.3 L 53.3 157.0 L 62.7 158.2 L 71.7 159.9
+               L 80.5 162.0 L 88.9 164.5 L 97.0 167.5 L 104.6 170.8 L 111.7 174.6
+               L 118.1 178.7 L 123.8 183.2 L 128.7 188.0 L 133.0 193.1 L 136.5 198.4
+               L 139.3 204.0 L 141.4 209.7 L 142.8 215.6 L 144.5 213.6 L 153.0 219.4
+               L 154.7 225.4 L 155.7 231.6 L 156.0 238.0"
+            stroke="#000" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-    <!-- Cut orbit/tails out of star area to remove "bumps" -->
-    <mask id="cutStar">
-      <rect width="256" height="256" fill="white"/>
-      <path d="M176 52l14.5 29.6 32.7 4.8-23.6 23 5.6 32.6L176 127.1l-29.2 15.5 5.6-32.6-23.6-23 32.7-4.8L176 52z" fill="black"/>
+      <!-- lower slit -->
+      <path d="M 34.0 128.0 L 45.2 128.3 L 56.2 129.1 L 67.0 130.5 L 77.5 132.5
+               L 87.7 135.0 L 97.6 138.2 L 107.1 142.0 L 116.0 146.4 L 124.2 151.5
+               L 131.6 157.2 L 138.2 163.4 L 144.0 170.1 L 148.9 177.1 L 153.1 184.5
+               L 156.7 192.1 L 159.9 199.6 L 163.0 206.9 L 166.4 214.0 L 169.7 221.0
+               L 172.5 228.2 L 184.0 238.0"
+            stroke="#000" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </mask>
   </defs>
 
-  <!-- orbit + tails -->
-  <g mask="url(#cutStar)" filter="url(#dualHalo)">
-    <path d="M72 190c36 18 76 18 112-2 26-14 44-38 54-72"
-          stroke="#F3EBDD" stroke-width="10" stroke-linecap="round"
-          stroke-dasharray="22 16"/>
-    <path d="M44 176c50-10 92-36 140-86"
-          stroke="url(#tail)" stroke-width="18" stroke-linecap="round"/>
-    <path d="M42 148c60-10 108-40 160-96"
-          stroke="#F3EBDD" stroke-width="10" stroke-linecap="round"
-          stroke-dasharray="12 16"/>
-  </g>
+  <g transform="translate(128 128) scale(1.12) translate(-128 -128)">
+    <!-- Tag -->
+    <path fill="var(--sf-accent)" mask="url(#sfFlow)"
+          d="M66 64 H154
+             a18 18 0 0 1 12.7 5.3
+             L214 116.6
+             a18 18 0 0 1 0 25.5
+             L142 214
+             a18 18 0 0 1-25.5 0
+             L48 145.5
+             a18 18 0 0 1-5.3-12.7
+             V82
+             a18 18 0 0 1 18-18 Z"/>
 
-  <!-- star -->
-  <path filter="url(#dualHalo)"
-        d="M176 52l14.5 29.6 32.7 4.8-23.6 23 5.6 32.6L176 127.1l-29.2 15.5 5.6-32.6-23.6-23 32.7-4.8L176 52z"
-        fill="url(#star)"/>
+    <!-- 孔位 -->
+    <circle cx="84" cy="92" r="12" fill="var(--sf-paper)" opacity="0.92"/>
+  </g>
 </svg>

@@ -1,9 +1,9 @@
 import { auth, signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Logo } from "@/components/logo";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -17,13 +17,10 @@ export default async function LoginPage() {
       <Card className="w-[400px]">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl flex items-center justify-center gap-2">
-            <Image
-              src="/favicon.svg"
-              alt="Starflow Logo"
-              width={32}
-              height={32}
-            />
-            Starflow
+            <Logo size={36} />
+            <span className="font-[family-name:var(--font-righteous)] tracking-wider">
+              Starflow
+            </span>
           </CardTitle>
           <CardDescription>
             管理你的 GitHub Stars，让收藏更有条理

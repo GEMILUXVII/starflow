@@ -5,7 +5,6 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { RefreshCw, Search, LogOut, Settings } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/logo";
 
 interface HeaderProps {
   user: {
@@ -40,15 +40,11 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex h-14 items-center px-4 gap-4">
         {/* Logo */}
-        <div className="flex items-center gap-2 font-semibold">
-          <Image
-            src="/favicon.svg"
-            alt="Starflow Logo"
-            width={24}
-            height={24}
-            className="text-primary"
-          />
-          <span>Starflow</span>
+        <div className="flex items-center gap-2">
+          <Logo size={28} />
+          <span className="text-xl font-[family-name:var(--font-righteous)] tracking-wider">
+            Starflow
+          </span>
         </div>
 
         {/* Search */}
