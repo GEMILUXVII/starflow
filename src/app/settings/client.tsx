@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { AlertMessage } from "@/components/alert-message";
 import {
   Select,
   SelectContent,
@@ -49,6 +51,28 @@ export function SettingsClient({ user }: { user: User }) {
     compactView: false,
   });
   const [clearing, setClearing] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant?: "default" | "destructive";
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+  const [alertMessage, setAlertMessage] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant?: "default" | "success" | "error";
+  }>({
+    open: false,
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     setPrefs(getPreferences());
@@ -79,7 +103,12 @@ export function SettingsClient({ user }: { user: User }) {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Export error:", error);
-      alert("导出失败，请重试");
+      setAlertMessage({
+        open: true,
+        title: "导出失败",
+        message: "导出失败，请重试",
+        variant: "error",
+      });
     }
   };
 
@@ -128,47 +157,110 @@ export function SettingsClient({ user }: { user: User }) {
   };
 
   const handleClearNotes = async () => {
-    if (!confirm("确定要删除所有笔记吗？此操作不可恢复。")) return;
-    setClearing("notes");
-    try {
-      await fetch("/api/notes", { method: "DELETE" });
-      alert("所有笔记已删除");
-    } catch (error) {
-      console.error("Clear notes error:", error);
-      alert("删除失败，请重试");
-    } finally {
-      setClearing(null);
-    }
+    setConfirmDialog({
+      open: true,
+      title: "清除所有笔记",
+      description: "确定要删除所有笔记吗？此操作不可恢复。",
+      variant: "destructive",
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, open: false });
+        setClearing("notes");
+        try {
+          await fetch("/api/notes", { method: "DELETE" });
+          setAlertMessage({
+            open: true,
+            title: "操作成功",
+            message: "所有笔记已删除",
+            variant: "success",
+          });
+        } catch (error) {
+          console.error("Clear notes error:", error);
+          setAlertMessage({
+            open: true,
+            title: "操作失败",
+            message: "删除失败，请重试",
+            variant: "error",
+          });
+        } finally {
+          setClearing(null);
+        }
+      },
+    });
   };
 
   const handleClearLists = async () => {
-    if (!confirm("确定要删除所有 Lists 吗？此操作不可恢复。")) return;
-    setClearing("lists");
-    try {
-      await fetch("/api/lists/all", { method: "DELETE" });
-      alert("所有 Lists 已删除");
-    } catch (error) {
-      console.error("Clear lists error:", error);
-      alert("删除失败，请重试");
-    } finally {
-      setClearing(null);
-    }
+    setConfirmDialog({
+      open: true,
+      title: "清除所有 Lists",
+      description: "确定要删除所有 Lists 吗？此操作不可恢复。",
+      variant: "destructive",
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, open: false });
+        setClearing("lists");
+        try {
+          await fetch("/api/lists/all", { method: "DELETE" });
+          setAlertMessage({
+            open: true,
+            title: "操作成功",
+            message: "所有 Lists 已删除",
+            variant: "success",
+          });
+        } catch (error) {
+          console.error("Clear lists error:", error);
+          setAlertMessage({
+            open: true,
+            title: "操作失败",
+            message: "删除失败，请重试",
+            variant: "error",
+          });
+        } finally {
+          setClearing(null);
+        }
+      },
+    });
   };
 
   const handleResetData = async () => {
-    if (!confirm("确定要重置所有数据吗？这将删除所有 Lists、笔记，并重新从 GitHub 同步。此操作不可恢复。")) return;
-    if (!confirm("再次确认：所有本地数据将被清除，是否继续？")) return;
-    setClearing("reset");
-    try {
-      await fetch("/api/reset", { method: "POST" });
-      alert("数据已重置，即将刷新页面");
-      router.push("/stars");
-    } catch (error) {
-      console.error("Reset error:", error);
-      alert("重置失败，请重试");
-    } finally {
-      setClearing(null);
-    }
+    setConfirmDialog({
+      open: true,
+      title: "重置所有数据",
+      description: "确定要重置所有数据吗？这将删除所有 Lists、笔记，并重新从 GitHub 同步。此操作不可恢复。",
+      variant: "destructive",
+      onConfirm: () => {
+        setConfirmDialog({
+          open: true,
+          title: "再次确认",
+          description: "所有本地数据将被清除，是否继续？",
+          variant: "destructive",
+          onConfirm: async () => {
+            setConfirmDialog({ ...confirmDialog, open: false });
+            setClearing("reset");
+            try {
+              await fetch("/api/reset", { method: "POST" });
+              setAlertMessage({
+                open: true,
+                title: "操作成功",
+                message: "数据已重置，即将刷新页面",
+                variant: "success",
+              });
+              setTimeout(() => {
+                router.push("/stars");
+              }, 1500);
+            } catch (error) {
+              console.error("Reset error:", error);
+              setAlertMessage({
+                open: true,
+                title: "操作失败",
+                message: "重置失败，请重试",
+                variant: "error",
+              });
+            } finally {
+              setClearing(null);
+            }
+          },
+        });
+      },
+    });
   };
 
   return (
@@ -502,6 +594,24 @@ export function SettingsClient({ user }: { user: User }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialogs */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+        variant={confirmDialog.variant}
+      />
+
+      <AlertMessage
+        open={alertMessage.open}
+        onOpenChange={(open) => setAlertMessage({ ...alertMessage, open })}
+        title={alertMessage.title}
+        message={alertMessage.message}
+        variant={alertMessage.variant}
+      />
     </div>
   );
 }

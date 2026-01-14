@@ -1,45 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 34 216 216">
   <defs>
     <style>
       :root { --sf-accent:#0f766e; --sf-paper:#f8fafc; }
     </style>
 
     <mask id="sfFlow" maskUnits="userSpaceOnUse">
-      <rect width="256" height="256" fill="#fff"/>
+      <rect x="0" y="0" width="256" height="256" fill="#fff"/>
 
-      <!-- upper slit -->
-      <path d="M 34.0 156.0 L 43.8 156.3 L 53.3 157.0 L 62.7 158.2 L 71.7 159.9
-               L 80.5 162.0 L 88.9 164.5 L 97.0 167.5 L 104.6 170.8 L 111.7 174.6
-               L 118.1 178.7 L 123.8 183.2 L 128.7 188.0 L 133.0 193.1 L 136.5 198.4
-               L 139.3 204.0 L 141.4 209.7 L 142.8 215.6 L 144.5 213.6 L 153.0 219.4
-               L 154.7 225.4 L 155.7 231.6 L 156.0 238.0"
-            stroke="#000" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- outer band (cuts a wide ribbon) -->
+      <path id="center"
+            d="M34 146
+               C88 112 122 124 148 156
+               C174 188 180 212 198 228"
+            stroke="#000" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-      <!-- lower slit -->
-      <path d="M 34.0 128.0 L 45.2 128.3 L 56.2 129.1 L 67.0 130.5 L 77.5 132.5
-               L 87.7 135.0 L 97.6 138.2 L 107.1 142.0 L 116.0 146.4 L 124.2 151.5
-               L 131.6 157.2 L 138.2 163.4 L 144.0 170.1 L 148.9 177.1 L 153.1 184.5
-               L 156.7 192.1 L 159.9 199.6 L 163.0 206.9 L 166.4 214.0 L 169.7 221.0
-               L 172.5 228.2 L 184.0 238.0"
-            stroke="#000" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- inner band (restores the middle gap) -->
+      <path
+            d="M34 146
+               C88 112 122 124 148 156
+               C174 188 180 212 198 228"
+            stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </mask>
   </defs>
 
-  <g transform="translate(128 128) scale(1.12) translate(-128 -128)">
-    <!-- Tag -->
-    <path fill="var(--sf-accent)" mask="url(#sfFlow)"
-          d="M66 64 H154
-             a18 18 0 0 1 12.7 5.3
-             L214 116.6
-             a18 18 0 0 1 0 25.5
-             L142 214
-             a18 18 0 0 1-25.5 0
-             L48 145.5
-             a18 18 0 0 1-5.3-12.7
-             V82
-             a18 18 0 0 1 18-18 Z"/>
+  <!-- Tag -->
+  <path fill="var(--sf-accent)" mask="url(#sfFlow)"
+        d="M66 64 H154
+           a18 18 0 0 1 12.7 5.3
+           L214 116.6
+           a18 18 0 0 1 0 25.5
+           L142 214
+           a18 18 0 0 1-25.5 0
+           L48 145.5
+           a18 18 0 0 1-5.3-12.7
+           V82
+           a18 18 0 0 1 18-18 Z"/>
 
-    <!-- 孔位 -->
-    <circle cx="84" cy="92" r="12" fill="var(--sf-paper)" opacity="0.92"/>
-  </g>
+  <!-- Hole -->
+  <circle cx="84" cy="92" r="12" fill="var(--sf-paper)" opacity="0.92"/>
 </svg>
