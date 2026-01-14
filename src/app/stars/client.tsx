@@ -470,20 +470,22 @@ export function StarsClient({ user }: { user: User }) {
           </div>
 
           {/* Repository List */}
-          <div className="space-y-3">
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-32 w-full" />
-              ))
-            ) : repositories.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>暂无仓库</p>
-                <Button variant="outline" className="mt-4" onClick={handleSync}>
-                  同步 GitHub Stars
-                </Button>
-              </div>
-            ) : (
-              <>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-48 w-full" />
+              ))}
+            </div>
+          ) : repositories.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>暂无仓库</p>
+              <Button variant="outline" className="mt-4" onClick={handleSync}>
+                同步 GitHub Stars
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {repositories.map((repo) => (
                   <RepositoryCard
                     key={repo.id}
@@ -500,6 +502,7 @@ export function StarsClient({ user }: { user: User }) {
                     compact={compactView}
                   />
                 ))}
+              </div>
 
                 {/* Load More */}
                 {hasMore && (
@@ -528,7 +531,6 @@ export function StarsClient({ user }: { user: User }) {
                 )}
               </>
             )}
-          </div>
         </main>
       </div>
 

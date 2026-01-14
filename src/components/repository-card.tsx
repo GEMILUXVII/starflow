@@ -97,10 +97,10 @@ export function RepositoryCard({
 
   return (
     <Card
-      className={`hover:shadow-md transition-shadow ${selected ? "ring-2 ring-primary" : ""}`}
+      className={`hover:shadow-md transition-shadow flex flex-col h-full ${selected ? "ring-2 ring-primary" : ""}`}
       onClick={selectMode ? () => onToggleSelect?.(repository.id) : undefined}
     >
-      <CardContent className={compact ? "p-3" : "p-4"}>
+      <CardContent className={compact ? "p-3 flex-1" : "p-4 flex-1"}>
         <div className="flex items-start justify-between gap-4">
           {/* Checkbox for select mode */}
           {selectMode && (
@@ -205,12 +205,13 @@ export function RepositoryCard({
           </div>
 
           {/* Actions */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="self-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <a
@@ -262,6 +263,7 @@ export function RepositoryCard({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
       </CardContent>
     </Card>
