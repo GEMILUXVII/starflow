@@ -584,7 +584,7 @@ export function SettingsClient({ user }: { user: User }) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">项目地址</span>
                 <a
-                  href="https://github.com/example/starflow"
+                  href="https://github.com/GEMILUXVII/starflow"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
