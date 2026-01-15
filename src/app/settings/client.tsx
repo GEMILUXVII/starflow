@@ -27,8 +27,10 @@ import {
   Trash2,
   Keyboard,
   Info,
+  Sparkles,
 } from "lucide-react";
 import { getPreferences, setPreferences, UserPreferences } from "@/lib/preferences";
+import { Input } from "@/components/ui/input";
 
 interface User {
   name?: string | null;
@@ -74,9 +76,119 @@ export function SettingsClient({ user }: { user: User }) {
     message: "",
   });
 
+  // AI 配置状态
+  const [aiConfig, setAiConfig] = useState({
+    provider: "openai",
+    apiKey: "",
+    baseUrl: "",
+    model: "gpt-3.5-turbo",
+    enabled: false,
+    hasApiKey: false,
+  });
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiTesting, setAiTesting] = useState(false);
+
   useEffect(() => {
     setPrefs(getPreferences());
+    fetchAiConfig();
   }, []);
+
+  const fetchAiConfig = async () => {
+    try {
+      const res = await fetch("/api/ai/config");
+      if (res.ok) {
+        const data = await res.json();
+        setAiConfig((prev) => ({
+          ...prev,
+          provider: data.provider || "openai",
+          baseUrl: data.baseUrl || "",
+          model: data.model || "gpt-3.5-turbo",
+          enabled: data.enabled || false,
+          hasApiKey: data.hasApiKey || false,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch AI config:", error);
+    }
+  };
+
+  const handleSaveAiConfig = async () => {
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: aiConfig.provider,
+          apiKey: aiConfig.apiKey || undefined,
+          baseUrl: aiConfig.baseUrl || undefined,
+          model: aiConfig.model,
+          enabled: aiConfig.enabled,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAiConfig((prev) => ({
+          ...prev,
+          apiKey: "",
+          hasApiKey: data.hasApiKey,
+        }));
+        setAlertMessage({
+          open: true,
+          title: "保存成功",
+          message: "AI 配置已保存",
+          variant: "success",
+        });
+      } else {
+        throw new Error("Save failed");
+      }
+    } catch (error) {
+      console.error("Save AI config error:", error);
+      setAlertMessage({
+        open: true,
+        title: "保存失败",
+        message: "保存 AI 配置失败",
+        variant: "error",
+      });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleTestAiConnection = async () => {
+    setAiTesting(true);
+    try {
+      const res = await fetch("/api/ai/test", { method: "POST" });
+      const data = await res.json();
+
+      if (data.success) {
+        setAlertMessage({
+          open: true,
+          title: "连接成功",
+          message: "AI 服务连接正常",
+          variant: "success",
+        });
+      } else {
+        setAlertMessage({
+          open: true,
+          title: "连接失败",
+          message: data.error || "无法连接到 AI 服务",
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Test AI connection error:", error);
+      setAlertMessage({
+        open: true,
+        title: "测试失败",
+        message: "测试连接时发生错误",
+        variant: "error",
+      });
+    } finally {
+      setAiTesting(false);
+    }
+  };
 
   const updatePreference = <K extends keyof UserPreferences>(
     key: K,
@@ -530,6 +642,126 @@ export function SettingsClient({ user }: { user: User }) {
           </CardContent>
         </Card>
 
+        {/* AI Configuration */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              AI 智能分类
+            </CardTitle>
+            <CardDescription>
+              配置 AI 服务，自动为仓库推荐分类
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>启用 AI 分类</Label>
+                <p className="text-sm text-muted-foreground">开启后可使用 AI 自动分类功能</p>
+              </div>
+              <Switch
+                checked={aiConfig.enabled}
+                onCheckedChange={(checked) =>
+                  setAiConfig((prev) => ({ ...prev, enabled: checked }))
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>AI 服务商</Label>
+              <Select
+                value={aiConfig.provider}
+                onValueChange={(value) =>
+                  setAiConfig((prev) => ({ ...prev, provider: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">OpenAI / 兼容 API</SelectItem>
+                  <SelectItem value="ollama">Ollama (本地)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                支持 OpenAI、Azure、各类代理服务 (one-api 等)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>API 端点 (可选)</Label>
+              <Input
+                type="url"
+                placeholder={aiConfig.provider === "ollama" ? "http://localhost:11434/v1" : "https://api.openai.com/v1"}
+                value={aiConfig.baseUrl}
+                onChange={(e) =>
+                  setAiConfig((prev) => ({ ...prev, baseUrl: e.target.value }))
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                留空使用默认端点，或填写代理/自建服务地址
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>API Key {aiConfig.hasApiKey && <span className="text-green-600">(已配置)</span>}</Label>
+              <Input
+                type="password"
+                placeholder={aiConfig.hasApiKey ? "••••••••" : "sk-..."}
+                value={aiConfig.apiKey}
+                onChange={(e) =>
+                  setAiConfig((prev) => ({ ...prev, apiKey: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>模型</Label>
+              <Input
+                type="text"
+                placeholder="gpt-3.5-turbo"
+                value={aiConfig.model}
+                onChange={(e) =>
+                  setAiConfig((prev) => ({ ...prev, model: e.target.value }))
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                推荐：gpt-3.5-turbo (便宜) 或 gpt-4o-mini (更准确)
+              </p>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={handleSaveAiConfig}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    保存中...
+                  </>
+                ) : (
+                  "保存配置"
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleTestAiConnection}
+                disabled={aiTesting || !aiConfig.hasApiKey}
+              >
+                {aiTesting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    测试中...
+                  </>
+                ) : (
+                  "测试连接"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Keyboard Shortcuts */}
         <Card className="mb-6">
           <CardHeader>
@@ -575,7 +807,7 @@ export function SettingsClient({ user }: { user: User }) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">版本</span>
-                <span>1.0.0</span>
+                <span>1.2.0</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">开源协议</span>

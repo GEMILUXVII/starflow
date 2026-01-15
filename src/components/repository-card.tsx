@@ -25,6 +25,7 @@ import {
   FileText,
   Archive,
   BookOpen,
+  Sparkles,
 } from "lucide-react";
 
 interface Repository {
@@ -51,6 +52,8 @@ interface RepositoryCardProps {
   onUnstar?: (repoId: string) => void;
   onOpenNote?: (repoId: string) => void;
   onOpenReadme?: (repoId: string) => void;
+  onAiClassify?: (repoId: string) => void;
+  aiEnabled?: boolean;
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (repoId: string) => void;
@@ -85,6 +88,8 @@ export function RepositoryCard({
   onUnstar,
   onOpenNote,
   onOpenReadme,
+  onAiClassify,
+  aiEnabled,
   selectMode,
   selected,
   onToggleSelect,
@@ -252,6 +257,12 @@ export function RepositoryCard({
                     ))}
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
+              )}
+              {aiEnabled && (
+                <DropdownMenuItem onClick={() => onAiClassify?.(repository.id)}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  AI 分类
+                </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem

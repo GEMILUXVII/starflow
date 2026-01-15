@@ -10,6 +10,7 @@ import { EditListDialog } from "@/components/edit-list-dialog";
 import { NoteDialog } from "@/components/note-dialog";
 import { ReadmeDialog } from "@/components/readme-dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { AiClassifyDialog } from "@/components/ai-classify-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -108,6 +109,20 @@ export function StarsClient({ user }: { user: User }) {
     onConfirm: () => {},
   });
 
+  // AI 分类状态
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [aiClassifyRepo, setAiClassifyRepo] = useState<{ id: string; name: string } | null>(null);
+  const [aiSuggestion, setAiSuggestion] = useState<{
+    suggestedListId: string | null;
+    suggestedListName: string | null;
+    suggestNewList: boolean;
+    newListName?: string;
+    confidence: number;
+    reason: string;
+  } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   // Load preferences on mount
   useEffect(() => {
     const prefs = getPreferences();
@@ -115,6 +130,14 @@ export function StarsClient({ user }: { user: User }) {
     setItemsPerPage(prefs.itemsPerPage);
     setCompactView(prefs.compactView);
     setPrefsLoaded(true);
+
+    // 检查 AI 是否启用
+    fetch("/api/ai/config")
+      .then((res) => res.json())
+      .then((data) => {
+        setAiEnabled(data.enabled && data.hasApiKey);
+      })
+      .catch(() => setAiEnabled(false));
   }, []);
 
   const selectedList = searchParams.get("list") || undefined;
@@ -301,6 +324,65 @@ export function StarsClient({ user }: { user: User }) {
   const handleExitSelectMode = () => {
     setSelectMode(false);
     setSelectedRepos(new Set());
+  };
+
+  // AI 分类功能
+  const handleAiClassify = async (repoId: string) => {
+    const repo = repositories.find((r) => r.id === repoId);
+    if (!repo) return;
+
+    setAiClassifyRepo({ id: repoId, name: repo.fullName });
+    setAiSuggestion(null);
+    setAiError(null);
+    setAiLoading(true);
+
+    try {
+      const res = await fetch("/api/ai/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repositoryId: repoId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setAiSuggestion(data.suggestion);
+      } else {
+        setAiError(data.error || "AI 分类失败");
+      }
+    } catch (error) {
+      console.error("AI classify error:", error);
+      setAiError("AI 分类请求失败");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleAiApply = async (listId: string) => {
+    if (!aiClassifyRepo) return;
+    await handleAddToList(aiClassifyRepo.id, listId);
+  };
+
+  const handleAiCreateAndApply = async (listName: string) => {
+    if (!aiClassifyRepo) return;
+
+    try {
+      // 创建新 List（需要提供 color）
+      const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+      const res = await fetch("/api/lists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: listName, color: randomColor }),
+      });
+
+      if (res.ok) {
+        const newList = await res.json();
+        await handleAddToList(aiClassifyRepo.id, newList.id);
+        await fetchStats();
+      }
+    } catch (error) {
+      console.error("Create list error:", error);
+    }
   };
 
   const handleBatchAddToList = async (listId: string) => {
@@ -522,6 +604,8 @@ export function StarsClient({ user }: { user: User }) {
                     onUnstar={handleUnstar}
                     onOpenNote={handleOpenNote}
                     onOpenReadme={handleOpenReadme}
+                    onAiClassify={handleAiClassify}
+                    aiEnabled={aiEnabled}
                     selectMode={selectMode}
                     selected={selectedRepos.has(repo.id)}
                     onToggleSelect={handleToggleSelect}
@@ -598,6 +682,17 @@ export function StarsClient({ user }: { user: User }) {
         description={confirmDialog.description}
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
+      />
+
+      <AiClassifyDialog
+        open={!!aiClassifyRepo}
+        onOpenChange={(open) => !open && setAiClassifyRepo(null)}
+        repositoryName={aiClassifyRepo?.name || ""}
+        suggestion={aiSuggestion}
+        loading={aiLoading}
+        error={aiError}
+        onApply={handleAiApply}
+        onCreateAndApply={handleAiCreateAndApply}
       />
     </div>
   );

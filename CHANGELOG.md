@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2025-01-15
+
+### Added / 新增
+
+- AI-powered repository classification with OpenAI compatible APIs
+- AI 智能分类功能，支持 OpenAI 兼容 API
+- Support for custom AI endpoints (proxies, Ollama, etc.)
+- 支持自定义 AI 端点（代理服务、Ollama 等）
+- AI configuration in settings page
+- 设置页面添加 AI 配置选项
+- Auto-create Lists based on AI suggestions
+- 根据 AI 建议自动创建 Lists
+
+---
+
 ## [1.1.1] - 2025-01-15
 
 ### Changed / 变更
@@ -59,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.0]: https://github.com/GEMILUXVII/starflow/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/GEMILUXVII/starflow/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/GEMILUXVII/starflow/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/GEMILUXVII/starflow/releases/tag/v1.0.0
