@@ -183,7 +183,7 @@ export function StatsClient() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => [`${value} 个仓库`, "数量"]}
+                      formatter={(value) => [`${value ?? 0} 个仓库`, "数量"]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -212,7 +212,7 @@ export function StatsClient() {
                       tick={{ fontSize: 12 }}
                     />
                     <Tooltip
-                      formatter={(value: number) => [`${value} 个仓库`, "数量"]}
+                      formatter={(value) => [`${value ?? 0} 个仓库`, "数量"]}
                     />
                     <Bar
                       dataKey="count"
