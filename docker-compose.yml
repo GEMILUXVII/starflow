@@ -6,13 +6,30 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=file:/app/data/starflow.db
+      - DATABASE_URL=postgresql://starflow:starflow@db:5432/starflow
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    container_name: starflow-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=starflow
+      - POSTGRES_PASSWORD=starflow
+      - POSTGRES_DB=starflow
     volumes:
-      - starflow_data:/app/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U starflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  starflow_data:
+  postgres_data:
