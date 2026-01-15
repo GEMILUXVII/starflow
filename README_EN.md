@@ -5,7 +5,7 @@
 # <div align="center">Starflow</div>
 
 <div align="center">
-  <strong>自托管的 GitHub Stars 管理工具 | A self-hosted GitHub Stars manager</strong>
+  <strong>A self-hosted GitHub Stars manager</strong>
 </div>
 
 <br>
@@ -19,71 +19,71 @@
 <br>
 
 <div align="center">
-  <a href="#功能特性">功能特性</a> |
-  <a href="#快速开始">快速开始</a> |
-  <a href="#部署">部署</a> |
-  <a href="#开发">开发</a>
+  <a href="#features">Features</a> |
+  <a href="#quick-start">Quick Start</a> |
+  <a href="#deployment">Deployment</a> |
+  <a href="#development">Development</a>
 </div>
 
 <div align="center">
-  <strong>中文</strong> | <a href="README_EN.md">English</a>
+  <a href="README.md">中文</a> | <strong>English</strong>
 </div>
 
 ---
 
-## 功能特性
+## Features
 
-- **分类管理** - 创建自定义 Lists，将仓库按项目、技术栈或用途分类
-- **快速搜索** - 按名称、描述、语言快速筛选，找到你需要的仓库
-- **双向同步** - 与 GitHub 实时同步，取消 Star 也会同步到你的账号
-- **笔记备注** - 为仓库添加个人笔记，记录使用心得
-- **导入导出** - 支持 JSON/CSV 格式导出，便于备份和迁移
-- **主题切换** - 支持亮色/暗色模式，偏好自动保存
+- **List Management** - Create custom lists to organize repositories by project, tech stack, or purpose
+- **Fast Search** - Filter by name, description, or language to find what you need
+- **Two-way Sync** - Real-time sync with GitHub, unstar also syncs to your account
+- **Notes** - Add personal notes to repositories
+- **Import/Export** - Backup and migrate your data in JSON/CSV format
+- **Dark/Light Mode** - Theme switching with auto-save preference
 
-## 快速开始
+## Quick Start
 
-### 使用 Docker（推荐）
+### Using Docker (Recommended)
 
 ```bash
-# 拉取镜像
+# Pull the image
 docker pull gemiluxvii/starflow:latest
 
-# 创建 .env 文件
+# Create .env file
 cat > .env << 'EOF'
-GITHUB_CLIENT_ID=你的GitHub_Client_ID
-GITHUB_CLIENT_SECRET=你的GitHub_Client_Secret
-NEXTAUTH_SECRET=随机密钥
-NEXTAUTH_URL=https://你的域名
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+NEXTAUTH_SECRET=your_random_secret
+NEXTAUTH_URL=https://your-domain.com
 EOF
 
-# 下载 docker-compose.yml
+# Download docker-compose.yml
 curl -O https://raw.githubusercontent.com/GEMILUXVII/starflow/main/docker-compose.yml
 
-# 启动服务
+# Start services
 docker compose up -d
 
-# 初始化数据库
+# Initialize database
 docker compose exec -u root starflow prisma db push
 ```
 
-### 创建 GitHub OAuth App
+### Create GitHub OAuth App
 
-1. 访问 [GitHub Developer Settings](https://github.com/settings/developers)
-2. 点击 "New OAuth App"
-3. 填写信息：
-   - Homepage URL: `https://你的域名`
-   - Callback URL: `https://你的域名/api/auth/callback/github`
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Click "New OAuth App"
+3. Fill in:
+   - Homepage URL: `https://your-domain.com`
+   - Callback URL: `https://your-domain.com/api/auth/callback/github`
 
-### 环境变量
+### Environment Variables
 
-| 变量 | 说明 |
-|------|------|
+| Variable | Description |
+|----------|-------------|
 | `GITHUB_CLIENT_ID` | GitHub OAuth App Client ID |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth App Client Secret |
-| `NEXTAUTH_SECRET` | 随机密钥（使用 `openssl rand -base64 32` 生成） |
-| `NEXTAUTH_URL` | 应用域名 |
+| `NEXTAUTH_SECRET` | Random secret (use `openssl rand -base64 32`) |
+| `NEXTAUTH_URL` | Your domain URL |
 
-## 部署
+## Deployment
 
 ### Docker Compose
 
@@ -125,42 +125,42 @@ volumes:
   postgres_data:
 ```
 
-### 常用命令
+### Commands
 
 ```bash
-docker compose up -d       # 启动
-docker compose down        # 停止
-docker compose restart     # 重启
-docker compose logs -f     # 查看日志
+docker compose up -d       # Start
+docker compose down        # Stop
+docker compose restart     # Restart
+docker compose logs -f     # View logs
 ```
 
-## 开发
+## Development
 
 ```bash
-# 克隆仓库
+# Clone
 git clone https://github.com/GEMILUXVII/starflow.git
 cd starflow
 
-# 安装依赖
+# Install
 pnpm install
 
-# 配置环境变量
+# Configure
 cp .env.example .env
 
-# 初始化数据库
+# Database
 pnpm prisma generate
 pnpm prisma db push
 
-# 启动开发服务器
+# Run
 pnpm dev
 ```
 
-## 技术栈
+## Tech Stack
 
-- **前端**: Next.js 15, React 19, Tailwind CSS 4, Radix UI
-- **后端**: Next.js API Routes, NextAuth.js 5, Prisma 5
-- **数据库**: PostgreSQL
+- **Frontend**: Next.js 15, React 19, Tailwind CSS 4, Radix UI
+- **Backend**: Next.js API Routes, NextAuth.js 5, Prisma 5
+- **Database**: PostgreSQL
 
-## 许可证
+## License
 
 [MIT](LICENSE)
