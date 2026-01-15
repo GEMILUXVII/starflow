@@ -48,6 +48,9 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Install prisma CLI for migrations
+RUN npm install -g prisma@5.22.0
+
 # Copy built application
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma

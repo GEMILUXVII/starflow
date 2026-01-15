@@ -162,7 +162,7 @@ done
 # ============================================================
 echo -e "\n${PURPLE}[Step 5/5]${NC} Initializing database..."
 
-docker compose exec -T starflow npx prisma db push --skip-generate
+docker compose exec -T starflow prisma db push
 
 log_success "Database initialized"
 
