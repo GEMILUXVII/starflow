@@ -20,6 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bar charts for language ranking and lists repository count
 - 语言排行和 Lists 仓库数量柱状图
 
+### Changed / 变更
+
+- Replace native browser confirm dialogs with custom ConfirmDialog component
+- 使用自定义 ConfirmDialog 组件替换浏览器原生确认框
+- Unified confirmation dialog style for unstar and delete actions
+- 统一取消 Star 和删除操作的确认对话框风格
+
 ### Fixed / 修复
 
 - Footer GitHub link now points to project repository
