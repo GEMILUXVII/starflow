@@ -44,6 +44,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl openssl-dev
+
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
