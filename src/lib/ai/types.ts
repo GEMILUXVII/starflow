@@ -6,6 +6,7 @@ export interface RepoInfo {
   description: string | null;
   language: string | null;
   topics: string[];
+  readmeSummary?: string | null; // README 摘要
 }
 
 export interface ListInfo {

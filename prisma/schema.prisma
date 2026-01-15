@@ -78,6 +78,7 @@ model Repository {
   pushedAt        DateTime?
   repoCreatedAt   DateTime?
   repoUpdatedAt   DateTime?
+  readmeSummary   String?  // AI 分类用的 README 摘要
 
   users UserRepository[]
   notes Note[]

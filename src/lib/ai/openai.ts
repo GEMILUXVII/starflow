@@ -10,34 +10,50 @@ export class OpenAIAdapter implements AIProvider {
 
   private buildPrompt(repo: RepoInfo, lists: ListInfo[]): string {
     const listsText = lists.length > 0
-      ? lists.map((l, i) => `${i + 1}. ${l.name}${l.description ? ` - ${l.description}` : ""}`).join("\n")
-      : "（用户还没有创建任何 List）";
+      ? lists.map((l, i) => `${i + 1}. ${l.name}`).join("\n")
+      : "（暂无）";
 
-    return `你是一个 GitHub 仓库分类助手。请根据仓库信息，建议将其归入哪个 List。
+    // 构建 README 摘要部分
+    const readmeSection = repo.readmeSummary
+      ? `\nREADME 摘要:\n${repo.readmeSummary}\n`
+      : "";
 
-用户现有的 Lists：
+    return `# 仓库分类任务
+
+## 待分类仓库
+名称: ${repo.fullName}
+描述: ${repo.description || "（无描述）"}
+语言: ${repo.language || "未知"}
+Topics: ${repo.topics.length > 0 ? repo.topics.join(", ") : "（无）"}${readmeSection}
+
+## 用户现有 Lists
 ${listsText}
 
-需要分类的仓库：
-- 名称: ${repo.fullName}
-- 描述: ${repo.description || "无"}
-- 语言: ${repo.language || "未知"}
-- Topics: ${repo.topics.length > 0 ? repo.topics.join(", ") : "无"}
+## 分类指南
 
-请分析这个仓库，返回 JSON 格式的建议：
+**核心原则：根据仓库的实际功能分类，不是技术栈！**
+
+常见分类映射：
+- proxy/clash/v2ray/翻墙/科学上网 → 代理工具
+- AI/LLM/GPT/Claude/机器学习 → AI工具
+- server/docker/k8s/运维/监控 → 运维/DevOps
+- vim/neovim/editor/IDE → 编辑器
+- cli/terminal/命令行 → CLI工具
+- database/数据库/redis/mysql → 数据库
+
+**决策流程：**
+1. 先从仓库名称、描述、README 中识别核心功能
+2. 匹配现有 List（>60% 相关就用现有的）
+3. 无匹配才建新 List（名称 ≤12字符）
+
+## 输出（仅 JSON）
 {
-  "listName": "建议的 List 名称（必须是上面列表中存在的，如果没有合适的则为 null）",
+  "listName": "现有 List 名称或 null",
   "suggestNewList": false,
-  "newListName": "如果建议创建新 List，填写名称",
-  "confidence": 0.85,
-  "reason": "简短说明分类理由"
-}
-
-注意：
-1. 如果现有 List 中有合适的，优先使用现有 List
-2. 只有在确实没有合适的 List 时，才建议创建新 List
-3. confidence 范围 0-1，表示你对这个分类的确信程度
-4. 只返回 JSON，不要其他内容`;
+  "newListName": "新名称（如代理工具、AI助手）",
+  "confidence": 0.8,
+  "reason": "核心功能 + 分类依据"
+}`;
   }
 
   async classify(repo: RepoInfo, lists: ListInfo[]): Promise<ClassifyResult> {
@@ -113,11 +129,19 @@ ${listsText}
       }
     }
 
+    // 如果新 List 名称过长，截断处理
+    let newListName = parsed.newListName;
+    if (newListName && newListName.length > 15) {
+      // 尝试取第一个词或截断
+      const words = newListName.split(/[\s&,]+/);
+      newListName = words[0].slice(0, 15);
+    }
+
     return {
       suggestedListId,
       suggestedListName,
       suggestNewList: parsed.suggestNewList || false,
-      newListName: parsed.newListName,
+      newListName,
       confidence: parsed.confidence || 0.5,
       reason: parsed.reason || "AI 建议",
     };

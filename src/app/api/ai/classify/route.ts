@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAIProvider } from "@/lib/ai";
+import { getReadmeSummary } from "@/lib/ai/readme";
 
 // POST /api/ai/classify - AI 分类单个仓库
 export async function POST(request: Request) {
@@ -25,6 +26,12 @@ export async function POST(request: Request) {
   if (!config || !config.apiKey || !config.enabled) {
     return NextResponse.json({ error: "AI not configured or disabled" }, { status: 400 });
   }
+
+  // 获取用户信息（需要 accessToken 来获取 README）
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { accessToken: true },
+  });
 
   // 获取仓库信息 (repositoryId 实际上是 UserRepository 的 id)
   const userRepo = await prisma.userRepository.findFirst({
@@ -60,6 +67,29 @@ export async function POST(request: Request) {
     topics = [];
   }
 
+  const repo = userRepo.repository;
+
+  // 判断是否需要获取 README（description 为空或很短，且没有缓存的 README）
+  let readmeSummary = repo.readmeSummary;
+  const needsReadme = (!repo.description || repo.description.length < 20) && !readmeSummary;
+
+  if (needsReadme && user?.accessToken) {
+    try {
+      readmeSummary = await getReadmeSummary(repo.owner, repo.name, user.accessToken);
+
+      // 缓存到数据库
+      if (readmeSummary) {
+        await prisma.repository.update({
+          where: { id: repo.id },
+          data: { readmeSummary },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch README:", error);
+      // 继续执行，即使获取 README 失败
+    }
+  }
+
   // 调用 AI 分类
   try {
     const provider = createAIProvider({
@@ -71,20 +101,21 @@ export async function POST(request: Request) {
 
     const result = await provider.classify(
       {
-        id: userRepo.repository.id,
-        fullName: userRepo.repository.fullName,
-        name: userRepo.repository.name,
-        owner: userRepo.repository.owner,
-        description: userRepo.repository.description,
-        language: userRepo.repository.language,
+        id: repo.id,
+        fullName: repo.fullName,
+        name: repo.name,
+        owner: repo.owner,
+        description: repo.description,
+        language: repo.language,
         topics,
+        readmeSummary,
       },
       lists
     );
 
     return NextResponse.json({
       repositoryId,
-      repositoryName: userRepo.repository.fullName,
+      repositoryName: repo.fullName,
       suggestion: result,
     });
   } catch (error) {

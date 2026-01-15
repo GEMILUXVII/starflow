@@ -21,5 +21,13 @@ export default async function SettingsPage() {
     },
   });
 
-  return <SettingsClient user={dbUser || session.user} />;
+  // 合并用户信息，将 null 转换为 undefined
+  const user = {
+    name: dbUser?.name ?? session.user.name,
+    email: dbUser?.email ?? session.user.email,
+    image: dbUser?.image ?? session.user.image,
+    username: dbUser?.username ?? undefined,
+  };
+
+  return <SettingsClient user={user} />;
 }

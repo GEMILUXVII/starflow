@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2025-01-15
+
+### Improved / 改进
+
+- Enhanced AI classification accuracy with README summary extraction
+- AI 分类准确性提升，支持 README 摘要提取
+- Smarter prompt focusing on functionality rather than tech stack
+- 更智能的 Prompt，根据功能而非技术栈分类
+- Shorter List names (≤12 characters) for better UI display
+- 更短的 List 名称（≤12字符）以优化界面显示
+- README summaries are cached to reduce API calls
+- README 摘要缓存，减少 API 调用
+
+---
+
 ## [1.2.0] - 2025-01-15
 
 ### Added / 新增
@@ -74,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.1]: https://github.com/GEMILUXVII/starflow/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/GEMILUXVII/starflow/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/GEMILUXVII/starflow/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/GEMILUXVII/starflow/compare/v1.0.0...v1.1.0
