@@ -9,6 +9,7 @@ import { CreateListDialog } from "@/components/create-list-dialog";
 import { EditListDialog } from "@/components/edit-list-dialog";
 import { NoteDialog } from "@/components/note-dialog";
 import { ReadmeDialog } from "@/components/readme-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,6 +96,17 @@ export function StarsClient({ user }: { user: User }) {
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLElement>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
 
   // Load preferences on mount
   useEffect(() => {
@@ -224,14 +236,21 @@ export function StarsClient({ user }: { user: User }) {
   };
 
   const handleUnstar = async (repoId: string) => {
-    if (!confirm("确定要取消 Star 吗？此操作将同步到 GitHub。")) return;
-    try {
-      await fetch(`/api/repositories/${repoId}/star`, { method: "DELETE" });
-      await fetchRepositories(1, false);
-      await fetchStats();
-    } catch (error) {
-      console.error("Failed to unstar:", error);
-    }
+    setConfirmDialog({
+      open: true,
+      title: "取消 Star",
+      description: "确定要取消 Star 吗？此操作将同步到 GitHub。",
+      onConfirm: async () => {
+        setConfirmDialog((prev) => ({ ...prev, open: false }));
+        try {
+          await fetch(`/api/repositories/${repoId}/star`, { method: "DELETE" });
+          await fetchRepositories(1, false);
+          await fetchStats();
+        } catch (error) {
+          console.error("Failed to unstar:", error);
+        }
+      },
+    });
   };
 
   // 批量操作
@@ -257,20 +276,26 @@ export function StarsClient({ user }: { user: User }) {
 
   const handleBatchUnstar = async () => {
     if (selectedRepos.size === 0) return;
-    if (!confirm(`确定要取消 ${selectedRepos.size} 个仓库的 Star 吗？此操作将同步到 GitHub。`)) return;
-
-    try {
-      // 逐个取消 Star
-      for (const repoId of selectedRepos) {
-        await fetch(`/api/repositories/${repoId}/star`, { method: "DELETE" });
-      }
-      setSelectedRepos(new Set());
-      setSelectMode(false);
-      await fetchRepositories(1, false);
-      await fetchStats();
-    } catch (error) {
-      console.error("Failed to batch unstar:", error);
-    }
+    setConfirmDialog({
+      open: true,
+      title: "批量取消 Star",
+      description: `确定要取消 ${selectedRepos.size} 个仓库的 Star 吗？此操作将同步到 GitHub。`,
+      onConfirm: async () => {
+        setConfirmDialog((prev) => ({ ...prev, open: false }));
+        try {
+          // 逐个取消 Star
+          for (const repoId of selectedRepos) {
+            await fetch(`/api/repositories/${repoId}/star`, { method: "DELETE" });
+          }
+          setSelectedRepos(new Set());
+          setSelectMode(false);
+          await fetchRepositories(1, false);
+          await fetchStats();
+        } catch (error) {
+          console.error("Failed to batch unstar:", error);
+        }
+      },
+    });
   };
 
   const handleExitSelectMode = () => {
@@ -564,6 +589,15 @@ export function StarsClient({ user }: { user: User }) {
         repositoryName={readmeRepo?.name || ""}
         repositoryUrl={readmeRepo?.url || ""}
         onOpenChange={(open) => !open && setReadmeRepo(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog((prev) => ({ ...prev, open }))}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+        variant="destructive"
       />
     </div>
   );
