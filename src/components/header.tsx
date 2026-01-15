@@ -30,7 +30,7 @@ interface HeaderProps {
   isSyncing?: boolean;
   onSearch?: (query: string) => void;
   lastSyncAt?: string | null;
-  searchInputRef?: React.RefObject<HTMLInputElement>;
+  searchInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchInputRef }: HeaderProps) {
