@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, Search, LogOut, Settings } from "lucide-react";
+import { RefreshCw, Search, LogOut, Settings, BarChart3 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "@/components/logo";
 
@@ -105,6 +105,10 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
                 </div>
               </div>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/stats")}>
+                <BarChart3 className="mr-2 h-4 w-4" />
+                <span>统计</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/settings")}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>设置</span>
