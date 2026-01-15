@@ -5,8 +5,8 @@ import { useTheme } from "next-themes";
 
 interface UseKeyboardShortcutsOptions {
   onSync?: () => void;
-  searchInputRef?: React.RefObject<HTMLInputElement>;
-  scrollContainerRef?: React.RefObject<HTMLElement>;
+  searchInputRef?: React.RefObject<HTMLInputElement | null>;
+  scrollContainerRef?: React.RefObject<HTMLElement | null>;
 }
 
 export function useKeyboardShortcuts({ onSync, searchInputRef, scrollContainerRef }: UseKeyboardShortcutsOptions) {
