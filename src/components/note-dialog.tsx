@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Pencil, Eye } from "lucide-react";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 interface NoteDialogProps {
   open: boolean;
@@ -37,6 +38,7 @@ export function NoteDialog({
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Load note when dialog opens
   useEffect(() => {
@@ -91,8 +93,12 @@ export function NoteDialog({
 
   const handleDelete = async () => {
     if (!repositoryId) return;
-    if (!confirm("确定要删除这条笔记吗？")) return;
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!repositoryId) return;
+    setShowDeleteConfirm(false);
     setSaving(true);
     try {
       await fetch(`/api/notes/${repositoryId}`, {
@@ -228,6 +234,15 @@ export function NoteDialog({
           )}
         </DialogFooter>
       </DialogContent>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="删除笔记"
+        description="确定要删除这条笔记吗？此操作不可恢复。"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
     </Dialog>
   );
 }
