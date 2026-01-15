@@ -245,7 +245,7 @@ export function StatsClient() {
                       />
                       <YAxis />
                       <Tooltip
-                        formatter={(value: number) => [`${value} 个仓库`, "数量"]}
+                        formatter={(value) => [`${value ?? 0} 个仓库`, "数量"]}
                       />
                       <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                         {listsData.map((entry, index) => (
