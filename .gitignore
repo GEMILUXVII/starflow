@@ -50,6 +50,9 @@ next-env.d.ts
 .vscode/
 *.swp
 *.swo
+.claude/
+
+# temp files
 tmpclaude-*
 dev.db
 dev.db-journal
