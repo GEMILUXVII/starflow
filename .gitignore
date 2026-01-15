@@ -56,3 +56,6 @@ next-env.d.ts
 tmpclaude-*
 dev.db
 dev.db-journal
+
+# local docs (not committed)
+*.local.md
