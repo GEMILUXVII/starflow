@@ -26,7 +26,7 @@ export function Footer() {
               服务条款
             </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/GEMILUXVII/starflow"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors"
