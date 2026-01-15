@@ -111,10 +111,10 @@ export function ReadmeDialog({
                   ),
                   img: ({ src, alt, width, height }) => {
                     // Handle relative image URLs
-                    let imgSrc = src;
-                    if (src && !src.startsWith("http") && !src.startsWith("data:")) {
+                    let imgSrc = typeof src === 'string' ? src : '';
+                    if (imgSrc && !imgSrc.startsWith("http") && !imgSrc.startsWith("data:")) {
                       const [owner, repo] = repositoryName.split("/");
-                      imgSrc = `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/${src}`;
+                      imgSrc = `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/${imgSrc}`;
                     }
                     return (
                       <img
