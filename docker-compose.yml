@@ -1,6 +1,6 @@
 services:
   starflow:
-    build: .
+    image: gemiluxvii/starflow:latest
     container_name: starflow
     restart: unless-stopped
     ports:
