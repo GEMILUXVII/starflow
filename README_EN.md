@@ -22,7 +22,8 @@
   <a href="#features">Features</a> |
   <a href="#quick-start">Quick Start</a> |
   <a href="#deployment">Deployment</a> |
-  <a href="#development">Development</a>
+  <a href="#development">Development</a> |
+  <a href="CHANGELOG.md">Changelog</a>
 </div>
 
 <div align="center">

@@ -22,7 +22,8 @@
   <a href="#功能特性">功能特性</a> |
   <a href="#快速开始">快速开始</a> |
   <a href="#部署">部署</a> |
-  <a href="#开发">开发</a>
+  <a href="#开发">开发</a> |
+  <a href="CHANGELOG.md">更新日志</a>
 </div>
 
 <div align="center">
