@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] - 2025-01-15
+
+### Added / 新增
+
+- One-click batch AI classification for all uncategorized repositories
+- 一键整理功能，批量 AI 分类所有未分类仓库
+- New List confirmation dialog before creating AI-suggested lists
+- 新 List 确认对话框，创建前让用户确认
+
+### Improved / 改进
+
+- Rate limiting protection with 2.5s interval between requests
+- API 限流保护，请求间隔 2.5 秒
+- Auto-retry on 429 errors (up to 3 times)
+- 429 错误自动重试（最多 3 次）
+
+---
+
 ## [1.2.1] - 2025-01-15
 
 ### Improved / 改进
@@ -89,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.2]: https://github.com/GEMILUXVII/starflow/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/GEMILUXVII/starflow/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/GEMILUXVII/starflow/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/GEMILUXVII/starflow/compare/v1.1.0...v1.1.1

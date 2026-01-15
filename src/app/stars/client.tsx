@@ -11,6 +11,7 @@ import { NoteDialog } from "@/components/note-dialog";
 import { ReadmeDialog } from "@/components/readme-dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { AiClassifyDialog } from "@/components/ai-classify-dialog";
+import { BatchClassifyDialog } from "@/components/batch-classify-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, FolderPlus } from "lucide-react";
+import { Loader2, FolderPlus, Sparkles } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -122,6 +123,10 @@ export function StarsClient({ user }: { user: User }) {
   } | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // 批量分类状态
+  const [showBatchClassify, setShowBatchClassify] = useState(false);
+  const [uncategorizedRepos, setUncategorizedRepos] = useState<{ id: string; fullName: string }[]>([]);
 
   // Load preferences on mount
   useEffect(() => {
@@ -461,6 +466,31 @@ export function StarsClient({ user }: { user: User }) {
     }
   };
 
+  // 获取未分类仓库并打开批量分类对话框
+  const handleOpenBatchClassify = async () => {
+    try {
+      const res = await fetch("/api/repositories?listId=uncategorized&limit=1000");
+      if (res.ok) {
+        const data = await res.json();
+        setUncategorizedRepos(
+          data.repositories.map((r: Repository) => ({
+            id: r.id,
+            fullName: r.fullName,
+          }))
+        );
+        setShowBatchClassify(true);
+      }
+    } catch (error) {
+      console.error("Failed to fetch uncategorized repos:", error);
+    }
+  };
+
+  // 批量分类完成后刷新
+  const handleBatchClassifyComplete = () => {
+    fetchRepositories(1, false);
+    fetchStats();
+  };
+
   return (
     <div className="h-screen flex flex-col">
       <Header
@@ -552,6 +582,16 @@ export function StarsClient({ user }: { user: User }) {
                   )}
                 </h1>
                 <div className="flex items-center gap-2">
+                  {aiEnabled && stats && stats.uncategorizedCount > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleOpenBatchClassify}
+                    >
+                      <Sparkles className="mr-1 h-4 w-4" />
+                      一键整理 ({stats.uncategorizedCount})
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
@@ -693,6 +733,14 @@ export function StarsClient({ user }: { user: User }) {
         error={aiError}
         onApply={handleAiApply}
         onCreateAndApply={handleAiCreateAndApply}
+      />
+
+      <BatchClassifyDialog
+        open={showBatchClassify}
+        onOpenChange={setShowBatchClassify}
+        uncategorizedRepos={uncategorizedRepos}
+        existingLists={stats?.lists.map((l) => ({ id: l.id, name: l.name })) || []}
+        onComplete={handleBatchClassifyComplete}
       />
     </div>
   );
