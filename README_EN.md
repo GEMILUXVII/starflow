@@ -64,7 +64,7 @@ curl -O https://raw.githubusercontent.com/GEMILUXVII/starflow/main/docker-compos
 docker compose up -d
 
 # Initialize database
-docker compose exec -u root starflow prisma db push
+docker compose exec starflow npx prisma db push --skip-generate
 ```
 
 ### Create GitHub OAuth App
