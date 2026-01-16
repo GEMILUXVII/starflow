@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.5] - 2025-01-16
+
+### Fixed / 修复
+
+- Fixed page scrolling to top when adding/removing list tags
+- 修复添加/移除标签时页面回到顶部的问题
+- Fixed list badge text not centered
+- 修复 List 标签文字不居中的问题
+
+### Changed / 变更
+
+- Use bind mount for postgres data persistence (easier backup)
+- 使用 bind mount 挂载数据库目录（便于备份）
+
+---
+
 ## [1.2.4] - 2025-01-16
 
 ### Fixed / 修复
@@ -147,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.5]: https://github.com/GEMILUXVII/starflow/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/GEMILUXVII/starflow/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/GEMILUXVII/starflow/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/GEMILUXVII/starflow/compare/v1.2.1...v1.2.2

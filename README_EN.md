@@ -115,15 +115,12 @@ services:
       - POSTGRES_PASSWORD=starflow
       - POSTGRES_DB=starflow
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U starflow"]
       interval: 5s
       timeout: 5s
       retries: 5
-
-volumes:
-  postgres_data:
 ```
 
 ### Commands
