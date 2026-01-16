@@ -248,7 +248,18 @@ export function StarsClient({ user }: { user: User }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repositoryId: repoId }),
       });
-      await fetchRepositories(1, false);
+      // 本地更新，避免重新获取导致回到顶部
+      const targetList = stats?.lists.find((l) => l.id === listId);
+      if (targetList) {
+        setRepositories((prev) =>
+          prev.map((repo) =>
+            repo.id === repoId
+              ? { ...repo, lists: [...repo.lists, { id: targetList.id, name: targetList.name, color: targetList.color }] }
+              : repo
+          )
+        );
+      }
+      // 只更新侧边栏统计
       await fetchStats();
     } catch (error) {
       console.error("Failed to add to list:", error);
@@ -260,7 +271,15 @@ export function StarsClient({ user }: { user: User }) {
       await fetch(`/api/lists/${listId}/repositories/${repoId}`, {
         method: "DELETE",
       });
-      await fetchRepositories(1, false);
+      // 本地更新，避免重新获取导致回到顶部
+      setRepositories((prev) =>
+        prev.map((repo) =>
+          repo.id === repoId
+            ? { ...repo, lists: repo.lists.filter((l) => l.id !== listId) }
+            : repo
+        )
+      );
+      // 只更新侧边栏统计
       await fetchStats();
     } catch (error) {
       console.error("Failed to remove from list:", error);
