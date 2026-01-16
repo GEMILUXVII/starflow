@@ -19,9 +19,10 @@
 <br>
 
 <div align="center">
+  <a href="#preview">Preview</a> |
   <a href="#features">Features</a> |
   <a href="#quick-start">Quick Start</a> |
-  <a href="#deployment">Deployment</a> |
+  <a href="#ai-classification">AI Classification</a> |
   <a href="#development">Development</a> |
   <a href="CHANGELOG.md">Changelog</a>
 </div>
@@ -32,42 +33,64 @@
 
 ---
 
+## Preview
+
+<details>
+<summary>🌙 Dark Mode</summary>
+<br>
+
+![Main](public/preview/preview-darkmode-main.png)
+![Stats](public/preview/preview-darkmode-stats.png)
+![Settings](public/preview/preview-darkmode-settings.png)
+
+</details>
+
+<details>
+<summary>☀️ Light Mode</summary>
+<br>
+
+![Main](public/preview/preview-whitemode-main.png)
+![Stats](public/preview/preview-whitemode-stats.png)
+![Settings](public/preview/preview-whitemode-settings.png)
+
+</details>
+
+---
+
 ## Features
 
-- **List Management** - Create custom lists to organize repositories by project, tech stack, or purpose
-- **Fast Search** - Filter by name, description, or language to find what you need
+### Core Features
+
+- **Lists Management** - Create custom lists to organize repositories by project, tech stack, or purpose with 24 preset colors
+- **AI Smart Classification** - Connect to OpenAI-compatible APIs for one-click automatic classification of all unorganized repositories
 - **Two-way Sync** - Real-time sync with GitHub, unstar also syncs to your account
-- **Notes** - Add personal notes to repositories
+- **README Preview** - View repository README without leaving the app
+
+### Search & Filter
+
+- **Full-text Search** - Quickly search repositories by name or description
+- **Multi-dimensional Filter** - Filter by language, list, star count, update time, etc.
+- **Sorting Options** - Sort by star time, update time, star count, and more
+
+### Data Management
+
+- **Notes** - Add personal notes to repositories for future reference
 - **Import/Export** - Backup and migrate your data in JSON/CSV format
-- **Dark/Light Mode** - Theme switching with auto-save preference
+- **Data Persistence** - PostgreSQL storage with data directory mapping for easy backup
+
+### User Experience
+
+- **Theme Switching** - Support for light/dark mode with auto-save preference
+- **Keyboard Shortcuts** - Keyboard shortcuts for improved efficiency
+- **Responsive Design** - Works on desktop and mobile
+
+---
 
 ## Quick Start
 
 ### Using Docker (Recommended)
 
-```bash
-# Pull the image
-docker pull gemiluxvii/starflow:latest
-
-# Create .env file
-cat > .env << 'EOF'
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
-NEXTAUTH_SECRET=your_random_secret
-NEXTAUTH_URL=https://your-domain.com
-EOF
-
-# Download docker-compose.yml
-curl -O https://raw.githubusercontent.com/GEMILUXVII/starflow/main/docker-compose.yml
-
-# Start services
-docker compose up -d
-
-# Initialize database
-docker compose exec starflow npx prisma db push --skip-generate
-```
-
-### Create GitHub OAuth App
+##### Create GitHub OAuth App
 
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
 2. Click "New OAuth App"
@@ -75,18 +98,41 @@ docker compose exec starflow npx prisma db push --skip-generate
    - Homepage URL: `https://your-domain.com`
    - Callback URL: `https://your-domain.com/api/auth/callback/github`
 
-### Environment Variables
+##### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `GITHUB_CLIENT_ID` | GitHub OAuth App Client ID |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth App Client Secret |
-| `NEXTAUTH_SECRET` | Random secret (use `openssl rand -base64 32`) |
-| `NEXTAUTH_URL` | Your domain URL |
+| Variable               | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| `GITHUB_CLIENT_ID`     | GitHub OAuth App Client ID                    |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth App Client Secret                |
+| `NEXTAUTH_SECRET`      | Random secret (use `openssl rand -base64 32`) |
+| `NEXTAUTH_URL`         | Your domain URL                               |
 
-## Deployment
+##### Pull Image
 
-### Docker Compose
+```bash
+docker pull gemiluxvii/starflow:latest
+```
+
+##### Create .env File
+
+```bash
+cat > .env << 'EOF'
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+NEXTAUTH_SECRET=your_random_secret
+NEXTAUTH_URL=https://your-domain.com
+EOF
+```
+
+##### Write docker-compose.yml
+
+- Fetch with curl
+
+```bash
+curl -O https://raw.githubusercontent.com/GEMILUXVII/starflow/main/docker-compose.yml
+```
+
+- Or copy the text below:
 
 ```yaml
 services:
@@ -123,14 +169,63 @@ services:
       retries: 5
 ```
 
-### Commands
+##### Start Services
 
 ```bash
-docker compose up -d       # Start
-docker compose down        # Stop
-docker compose restart     # Restart
-docker compose logs -f     # View logs
+docker compose up -d
 ```
+##### Initialize Database
+
+```bash
+docker compose exec starflow npx prisma db push --skip-generate
+```
+
+Then you can access Starflow at http://serverip:3000
+
+---
+
+## AI Classification
+
+Starflow supports OpenAI-compatible APIs for intelligent repository classification.
+
+### Supported Services
+
+- OpenAI Official API
+- Third-party proxy services (auto-compatible with /v1 path)
+- Self-hosted Ollama, LocalAI, etc.
+
+### Configuration
+
+1. Go to "Settings" page
+2. In the "AI Classification" section, fill in:
+   - API URL (e.g., `https://api.openai.com` or proxy URL)
+   - API Key
+   - Model name (e.g., `gpt-3.5-turbo`)
+3. Click "Test Connection" to verify
+4. Enable AI classification
+
+### Classification Details
+
+- 15 standard categories: AI Tools, Proxy Tools, CLI Tools, Frontend, Backend, Database, DevOps, Editor, Dev Tools, Download Tools, Media Tools, Security Tools, Learning Resources, System Tools, Other
+- Supports single repository and batch classification
+- Prioritizes matching existing lists to reduce duplicates
+
+---
+
+### Data Backup
+
+Data is stored in `./data/postgres` directory. Backup this directory:
+
+```bash
+# Backup
+tar -czvf starflow-backup.tar.gz ./data
+
+# Migrate to new server
+tar -xzvf starflow-backup.tar.gz
+docker compose up -d
+```
+
+---
 
 ## Development
 
@@ -153,11 +248,16 @@ pnpm prisma db push
 pnpm dev
 ```
 
+---
+
 ## Tech Stack
 
 - **Frontend**: Next.js 15, React 19, Tailwind CSS 4, Radix UI
 - **Backend**: Next.js API Routes, NextAuth.js 5, Prisma 5
 - **Database**: PostgreSQL
+- **AI**: OpenAI-compatible API
+
+---
 
 ## License
 
