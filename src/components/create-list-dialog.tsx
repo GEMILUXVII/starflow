@@ -12,19 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const colors = [
-  "#ef4444", // red
-  "#f97316", // orange
-  "#eab308", // yellow
-  "#22c55e", // green
-  "#14b8a6", // teal
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
+import { LIST_COLORS } from "@/lib/colors";
 
 interface CreateListDialogProps {
   open: boolean;
@@ -38,7 +26,7 @@ export function CreateListDialog({
   onSubmit,
 }: CreateListDialogProps) {
   const [name, setName] = useState("");
-  const [color, setColor] = useState(colors[6]); // default indigo
+  const [color, setColor] = useState(LIST_COLORS[11]); // default indigo
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +37,7 @@ export function CreateListDialog({
     try {
       await onSubmit(name.trim(), color);
       setName("");
-      setColor(colors[6]);
+      setColor(LIST_COLORS[11]);
     } finally {
       setLoading(false);
     }
@@ -79,7 +67,7 @@ export function CreateListDialog({
             <div className="grid gap-2">
               <Label>颜色</Label>
               <div className="flex gap-2 flex-wrap">
-                {colors.map((c) => (
+                {LIST_COLORS.map((c) => (
                   <button
                     key={c}
                     type="button"

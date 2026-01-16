@@ -32,6 +32,7 @@ import { FilterPopover, Filters } from "@/components/filter-popover";
 import { getPreferences, UserPreferences } from "@/lib/preferences";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { Footer } from "@/components/footer";
+import { getRandomColor } from "@/lib/colors";
 
 interface User {
   id: string;
@@ -395,12 +396,12 @@ export function StarsClient({ user }: { user: User }) {
     if (!aiClassifyRepo) return;
 
     try {
-      // 创建新 List（需要提供 color）
-      const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+      // 创建新 List（使用预定义颜色）
+      const color = getRandomColor();
       const res = await fetch("/api/lists", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: listName, color: randomColor }),
+        body: JSON.stringify({ name: listName, color }),
       });
 
       if (res.ok) {

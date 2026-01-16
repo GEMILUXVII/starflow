@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Sparkles, Check, X, FolderPlus } from "lucide-react";
+import { LIST_COLORS } from "@/lib/colors";
 
 interface Repository {
   id: string;
@@ -398,18 +399,18 @@ export function BatchClassifyDialog({
   const applyNewLists = async () => {
     setIsApplying(true);
 
+    let colorIndex = 0;
     for (const suggestion of newListSuggestions) {
       if (!suggestion.selected) continue;
 
       try {
-        // 创建新 List
-        const randomColor = `#${Math.floor(Math.random() * 16777215)
-          .toString(16)
-          .padStart(6, "0")}`;
+        // 创建新 List - 使用预定义颜色
+        const color = LIST_COLORS[colorIndex % LIST_COLORS.length];
+        colorIndex++;
         const res = await fetch("/api/lists", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: suggestion.name, color: randomColor }),
+          body: JSON.stringify({ name: suggestion.name, color }),
         });
 
         if (res.ok) {

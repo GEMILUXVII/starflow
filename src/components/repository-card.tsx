@@ -185,7 +185,7 @@ export function RepositoryCard({
                   <Badge
                     key={list.id}
                     variant="secondary"
-                    className="text-xs group/badge cursor-default px-1.5"
+                    className="text-xs group/badge cursor-default px-1.5 border"
                     style={{ borderColor: list.color }}
                   >
                     <span className="flex items-center">
