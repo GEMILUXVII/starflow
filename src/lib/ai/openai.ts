@@ -90,6 +90,12 @@ ${standardCategories}
   // 规范化 baseUrl，自动补全 /v1
   private normalizeBaseUrl(): string {
     let baseUrl = (this.config.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+
+    // 如果用户填写了完整路径（包含 /chat/completions），去掉它
+    if (baseUrl.endsWith("/chat/completions")) {
+      baseUrl = baseUrl.replace(/\/chat\/completions$/, "");
+    }
+
     // 如果不以 /v1 结尾，自动补上（兼容用户只填域名的情况）
     if (!baseUrl.endsWith("/v1")) {
       baseUrl = `${baseUrl}/v1`;

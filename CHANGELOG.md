@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.6] - 2025-01-16
+
+### Added / 新增
+
+- 24 predefined colors for List (expanded from 10)
+- 新增 24 种预定义颜色（从 10 种扩展）
+
+### Fixed / 修复
+
+- Fixed list badge border not visible on some colors
+- 修复部分颜色的 List 标签描边不可见问题
+- Auto append /v1 to API base URL for third-party proxy compatibility
+- 自动补全 API 地址的 /v1 后缀，兼容第三方中转站
+
+---
+
 ## [1.2.5] - 2025-01-16
 
 ### Fixed / 修复
@@ -163,6 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.6]: https://github.com/GEMILUXVII/starflow/compare/v1.2.5...v1.2.6
 [1.2.5]: https://github.com/GEMILUXVII/starflow/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/GEMILUXVII/starflow/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/GEMILUXVII/starflow/compare/v1.2.2...v1.2.3

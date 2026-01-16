@@ -849,7 +849,7 @@ export function SettingsClient({ user }: { user: User }) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">版本</span>
-                <span>1.2.5</span>
+                <span>1.2.6</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">开源协议</span>
