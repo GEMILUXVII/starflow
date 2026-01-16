@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.4] - 2025-01-16
+
+### Fixed / 修复
+
+- Fixed batch classification missing repositories due to incomplete AI responses
+- 修复 AI 响应不完整导致部分仓库未被分类的问题
+
+### Improved / 改进
+
+- Limited to 15 standard categories to prevent excessive List creation
+- 限制为 15 个标准分类，避免创建过多 List
+- Force AI to use predefined categories only
+- 强制 AI 只能使用预定义分类
+- Added fallback handling for failed classifications
+- 添加分类失败时的兜底处理
+
+---
+
 ## [1.2.3] - 2025-01-16
 
 ### Added / 新增
@@ -129,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.4]: https://github.com/GEMILUXVII/starflow/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/GEMILUXVII/starflow/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/GEMILUXVII/starflow/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/GEMILUXVII/starflow/compare/v1.2.0...v1.2.1

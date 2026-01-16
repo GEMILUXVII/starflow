@@ -173,13 +173,140 @@ export function BatchClassifyDialog({
     processResults(allResults);
   };
 
+  // 标准分类列表（与 openai.ts 保持一致）
+  const STANDARD_CATEGORIES = [
+    "AI工具",
+    "代理工具",
+    "CLI工具",
+    "前端",
+    "后端",
+    "数据库",
+    "DevOps",
+    "编辑器",
+    "开发工具",
+    "下载工具",
+    "媒体工具",
+    "安全工具",
+    "学习资源",
+    "系统工具",
+    "其他",
+  ];
+
+  // 强制映射到标准分类
+  const normalizeListName = (name: string): string => {
+    const lowerName = name.toLowerCase();
+
+    // 首先检查是否已经是标准分类
+    for (const cat of STANDARD_CATEGORIES) {
+      if (cat === name || cat.toLowerCase() === lowerName) {
+        return cat;
+      }
+    }
+
+    // 关键词映射到标准分类
+    const rules: [RegExp, string][] = [
+      // 代理工具（优先匹配）
+      [/proxy|代理|clash|v2ray|sing-box|翻墙|科学上网|vpn|ss|ssr|trojan|shadowsocks|hysteria|xray|网络代理/i, "代理工具"],
+      // AI
+      [/\bai\b|llm|gpt|claude|ollama|机器学习|深度学习|ml\b|人工智能|chatbot|copilot|neural|transformer/i, "AI工具"],
+      // DevOps
+      [/devops|docker|k8s|kubernetes|ansible|terraform|ci\/cd|运维|部署|容器|helm|jenkins|github.?action/i, "DevOps"],
+      // 编辑器
+      [/editor|编辑器|vim|neovim|vscode|ide|emacs|sublime|编辑/i, "编辑器"],
+      // CLI
+      [/\bcli\b|terminal|shell|命令行|console|bash|zsh|终端/i, "CLI工具"],
+      // 前端
+      [/frontend|前端|react|vue|angular|svelte|next\.?js|nuxt|tailwind|css|html|webpack|vite|组件/i, "前端"],
+      // 后端
+      [/backend|后端|server|服务端|express|fastapi|gin|spring|nestjs|graphql|api/i, "后端"],
+      // 数据库
+      [/database|数据库|db\b|redis|mysql|postgres|sqlite|mongo|orm|prisma/i, "数据库"],
+      // 安全
+      [/security|安全|加密|crypto|auth|password|密码|oauth|jwt/i, "安全工具"],
+      // 下载
+      [/download|下载|aria2|youtube-dl|yt-dlp|torrent/i, "下载工具"],
+      // 媒体
+      [/media|视频|音频|图片|image|video|audio|ffmpeg|图像|音乐|播放/i, "媒体工具"],
+      // 学习资源
+      [/learn|学习|tutorial|教程|awesome|资源|course|书籍|book|文档|doc/i, "学习资源"],
+      // 系统工具
+      [/system|系统|windows|linux|mac|os|桌面|desktop|launcher/i, "系统工具"],
+      // 开发工具（兜底）
+      [/dev|tool|工具|utility|lib|library|framework|sdk/i, "开发工具"],
+    ];
+
+    for (const [pattern, category] of rules) {
+      if (pattern.test(lowerName) || pattern.test(name)) {
+        return category;
+      }
+    }
+
+    // 完全无法匹配，归入"其他"
+    return "其他";
+  };
+
+  // 检查新 List 名称是否与现有 List 相似
+  const findSimilarExistingList = (newName: string): { id: string; name: string } | null => {
+    const normalizedNew = newName.toLowerCase();
+
+    for (const list of existingLists) {
+      const normalizedExisting = list.name.toLowerCase();
+
+      // 完全匹配
+      if (normalizedNew === normalizedExisting) {
+        return list;
+      }
+
+      // 包含关系匹配
+      if (normalizedNew.includes(normalizedExisting) || normalizedExisting.includes(normalizedNew)) {
+        return list;
+      }
+
+      // 关键词匹配
+      const keywords = [
+        ["ai", "人工智能", "机器学习", "llm"],
+        ["proxy", "代理", "翻墙", "科学上网", "vpn"],
+        ["devops", "运维", "docker", "k8s", "容器"],
+        ["cli", "命令行", "终端", "terminal"],
+        ["前端", "frontend", "react", "vue"],
+        ["后端", "backend", "server", "api"],
+        ["数据库", "database", "db"],
+        ["安全", "security", "加密"],
+        ["测试", "test"],
+        ["文档", "doc", "markdown"],
+        ["编辑器", "editor", "vim", "ide"],
+      ];
+
+      for (const group of keywords) {
+        const newMatches = group.some(k => normalizedNew.includes(k));
+        const existingMatches = group.some(k => normalizedExisting.includes(k));
+        if (newMatches && existingMatches) {
+          return list;
+        }
+      }
+    }
+
+    return null;
+  };
+
   // 分析结果，分离已匹配和新 List 建议
   const processResults = async (allResults: ClassifyResult[]) => {
     const toApply: { repoId: string; listId: string }[] = [];
     const newListMap = new Map<string, { id: string; name: string }[]>();
 
     for (const result of allResults) {
-      if (!result.success || !result.suggestion) continue;
+      // 分类失败的仓库也要收集起来
+      if (!result.success || !result.suggestion) {
+        const fallbackName = "待分类";
+        if (!newListMap.has(fallbackName)) {
+          newListMap.set(fallbackName, []);
+        }
+        newListMap.get(fallbackName)!.push({
+          id: result.repoId,
+          name: result.repoName,
+        });
+        continue;
+      }
 
       const { suggestion } = result;
 
@@ -190,12 +317,34 @@ export function BatchClassifyDialog({
           listId: suggestion.suggestedListId,
         });
       } else if (suggestion.suggestNewList && suggestion.newListName) {
-        // 建议新 List
-        const listName = suggestion.newListName;
-        if (!newListMap.has(listName)) {
-          newListMap.set(listName, []);
+        // 建议新 List - 先检查是否有相似的现有 List
+        const similarList = findSimilarExistingList(suggestion.newListName);
+        if (similarList) {
+          // 找到相似的现有 List，直接归入
+          toApply.push({
+            repoId: result.repoId,
+            listId: similarList.id,
+          });
+        } else {
+          // 没有相似的，归一化名称后收集
+          const normalizedName = normalizeListName(suggestion.newListName);
+          if (!newListMap.has(normalizedName)) {
+            newListMap.set(normalizedName, []);
+          }
+          newListMap.get(normalizedName)!.push({
+            id: result.repoId,
+            name: result.repoName,
+          });
         }
-        newListMap.get(listName)!.push({
+      } else {
+        // 兜底：AI 没有给出有效建议时，归入"其他"类别
+        // 这包括：suggestNewList 为 true 但 newListName 为空，
+        // 或者 suggestedListId 为 null 且 suggestNewList 为 false 的情况
+        const fallbackName = "其他";
+        if (!newListMap.has(fallbackName)) {
+          newListMap.set(fallbackName, []);
+        }
+        newListMap.get(fallbackName)!.push({
           id: result.repoId,
           name: result.repoName,
         });
@@ -205,11 +354,14 @@ export function BatchClassifyDialog({
     // 自动应用匹配到现有 List 的
     for (const { repoId, listId } of toApply) {
       try {
-        await fetch(`/api/lists/${listId}/repositories`, {
+        const res = await fetch(`/api/lists/${listId}/repositories`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ repositoryId: repoId }),
         });
+        if (!res.ok) {
+          console.error("Failed to add to list:", await res.text());
+        }
       } catch (error) {
         console.error("Failed to add to list:", error);
       }

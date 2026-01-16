@@ -4,6 +4,25 @@ export class OpenAIAdapter implements AIProvider {
   name = "openai";
   private config: AIConfig;
 
+  // 预定义的标准分类（限制在 15 个以内）
+  static readonly STANDARD_CATEGORIES = [
+    "AI工具",
+    "代理工具",
+    "CLI工具",
+    "前端",
+    "后端",
+    "数据库",
+    "DevOps",
+    "编辑器",
+    "开发工具",
+    "下载工具",
+    "媒体工具",
+    "安全工具",
+    "学习资源",
+    "系统工具",
+    "其他",
+  ];
+
   constructor(config: AIConfig) {
     this.config = config;
   }
@@ -18,6 +37,9 @@ export class OpenAIAdapter implements AIProvider {
       ? `\nREADME 摘要:\n${repo.readmeSummary}\n`
       : "";
 
+    // 标准分类列表
+    const standardCategories = OpenAIAdapter.STANDARD_CATEGORIES.join("、");
+
     return `# 仓库分类任务
 
 ## 待分类仓库
@@ -29,31 +51,39 @@ Topics: ${repo.topics.length > 0 ? repo.topics.join(", ") : "（无）"}${readme
 ## 用户现有 Lists
 ${listsText}
 
-## 分类规则
+## 标准分类（必须从以下选择）
+${standardCategories}
 
-**必须给出分类！不允许返回空结果。**
+## 分类规则（严格遵守）
 
-分类映射参考：
-- proxy/clash/v2ray/翻墙 → 代理工具
-- AI/LLM/GPT/Claude → AI工具
-- docker/k8s/运维 → DevOps
-- vim/neovim/editor → 编辑器
-- cli/terminal → CLI工具
+1. **优先匹配现有 List**：如果用户已有相关 List，必须使用现有 List
+2. **否则使用标准分类**：从上面的标准分类中选择最合适的
+3. **禁止创建新分类名称**：只能使用现有 List 名称或标准分类名称
+
+关键词对应：
+- proxy/clash/v2ray/vpn/翻墙 → 代理工具
+- AI/LLM/GPT/机器学习/chatbot → AI工具
+- docker/k8s/CI/CD/部署 → DevOps
+- vim/vscode/IDE/编辑 → 编辑器
+- cli/terminal/命令行 → CLI工具
+- react/vue/前端/css/html → 前端
+- express/fastapi/后端/api → 后端
 - database/redis/mysql → 数据库
-- react/vue/frontend → 前端
-- go/rust/python/java → 按功能分类，不按语言
+- download/下载/aria2 → 下载工具
+- video/audio/图片/媒体 → 媒体工具
+- security/加密/密码 → 安全工具
+- 教程/学习/awesome → 学习资源
+- 系统/windows/linux/mac → 系统工具
+- 通用开发工具 → 开发工具
+- 无法分类 → 其他
 
-**决策：**
-1. 优先匹配现有 List
-2. 无匹配则必须建议新 List（名称 ≤10字符，如：代理工具、AI助手）
-
-## 输出（仅 JSON，必填所有字段）
+## 输出（仅 JSON）
 {
-  "listName": "匹配的现有 List 名称，无匹配填 null",
+  "listName": "现有 List 名称（精确匹配）或 null",
   "suggestNewList": true,
-  "newListName": "新 List 名称（必填，如无匹配现有 List）",
+  "newListName": "标准分类名称（必须从上面选择）",
   "confidence": 0.8,
-  "reason": "一句话说明"
+  "reason": "一句话"
 }`;
   }
 
