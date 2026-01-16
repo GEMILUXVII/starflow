@@ -19,6 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
+      // 对于已存在的用户，更新 token（可能已过期）
       if (account?.provider === "github" && profile && user.id) {
         const githubProfile = profile as unknown as {
           id: number;
@@ -26,28 +27,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           avatar_url: string;
         };
 
-        // 检查用户是否存在
-        const existingUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { id: true }
-        });
-
-        // 如果用户不存在，跳过（让 adapter 先创建）
-        if (!existingUser) {
-          console.log("User not created yet, skipping update");
-          return true;
+        // 尝试更新用户信息（如果用户存在）
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              githubId: githubProfile.id,
+              username: githubProfile.login,
+              avatarUrl: githubProfile.avatar_url,
+              accessToken: account.access_token || "",
+            },
+          });
+        } catch {
+          // 用户可能还不存在（首次登录），忽略错误
+          // linkAccount 事件会处理首次登录的情况
         }
-
-        // 更新用户的 GitHub 特定信息
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            githubId: githubProfile.id,
-            username: githubProfile.login,
-            avatarUrl: githubProfile.avatar_url,
-            accessToken: account.access_token || "",
-          },
-        });
       }
       return true;
     },
@@ -67,10 +61,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   events: {
-    async createUser({ user }) {
-      // 用户首次创建后，获取 GitHub profile 信息
-      // 这个事件在 adapter 创建用户后触发
-      console.log("User created:", user.id);
+    // 账户关联后触发（首次登录时，用户已创建）
+    async linkAccount({ user, account, profile }) {
+      if (account.provider === "github" && profile) {
+        const githubProfile = profile as unknown as {
+          id: number;
+          login: string;
+          avatar_url: string;
+        };
+
+        // 更新用户的 GitHub 特定信息
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            githubId: githubProfile.id,
+            username: githubProfile.login,
+            avatarUrl: githubProfile.avatar_url,
+            accessToken: account.access_token || "",
+          },
+        });
+        console.log("User linked and updated:", user.id);
+      }
     },
   },
   pages: {
