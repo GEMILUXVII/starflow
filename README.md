@@ -51,7 +51,7 @@
 
 ![主页](public/preview/preview-whitemode-main.png)
 ![统计](public/preview/preview-whitemode-stats.png)
-![设置](public/preview/preview-whtemode-settings.png)
+![设置](public/preview/preview-whitemode-settings.png)
 
 </details>
 
