@@ -127,6 +127,8 @@ export function StarsClient({ user }: { user: User }) {
   // 批量分类状态
   const [showBatchClassify, setShowBatchClassify] = useState(false);
   const [uncategorizedRepos, setUncategorizedRepos] = useState<{ id: string; fullName: string }[]>([]);
+  const [aiRequestInterval, setAiRequestInterval] = useState(1000);
+  const [aiConcurrency, setAiConcurrency] = useState(3);
 
   // Load preferences on mount
   useEffect(() => {
@@ -141,6 +143,8 @@ export function StarsClient({ user }: { user: User }) {
       .then((res) => res.json())
       .then((data) => {
         setAiEnabled(data.enabled && data.hasApiKey);
+        setAiRequestInterval(data.requestInterval || 1000);
+        setAiConcurrency(data.concurrency || 3);
       })
       .catch(() => setAiEnabled(false));
   }, []);
@@ -741,6 +745,8 @@ export function StarsClient({ user }: { user: User }) {
         uncategorizedRepos={uncategorizedRepos}
         existingLists={stats?.lists.map((l) => ({ id: l.id, name: l.name })) || []}
         onComplete={handleBatchClassifyComplete}
+        requestInterval={aiRequestInterval}
+        concurrency={aiConcurrency}
       />
     </div>
   );

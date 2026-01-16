@@ -16,7 +16,9 @@ export async function GET() {
       baseUrl: true,
       model: true,
       enabled: true,
-      apiKey: true, // 需要查询 apiKey 来判断是否已配置
+      apiKey: true,
+      requestInterval: true,
+      concurrency: true,
     },
   });
 
@@ -26,6 +28,8 @@ export async function GET() {
     model: config?.model,
     enabled: config?.enabled,
     hasApiKey: !!config?.apiKey,
+    requestInterval: config?.requestInterval ?? 1000,
+    concurrency: config?.concurrency ?? 3,
   });
 }
 
@@ -37,7 +41,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { provider, apiKey, baseUrl, model, enabled } = body;
+  const { provider, apiKey, baseUrl, model, enabled, requestInterval, concurrency } = body;
 
   const config = await prisma.aIConfig.upsert({
     where: { userId: session.user.id },
@@ -47,6 +51,8 @@ export async function POST(request: Request) {
       baseUrl,
       model,
       enabled,
+      requestInterval: requestInterval ?? 1000,
+      concurrency: concurrency ?? 3,
     },
     create: {
       userId: session.user.id,
@@ -55,6 +61,8 @@ export async function POST(request: Request) {
       baseUrl,
       model,
       enabled,
+      requestInterval: requestInterval ?? 1000,
+      concurrency: concurrency ?? 3,
     },
   });
 
@@ -64,5 +72,7 @@ export async function POST(request: Request) {
     model: config.model,
     enabled: config.enabled,
     hasApiKey: !!config.apiKey,
+    requestInterval: config.requestInterval,
+    concurrency: config.concurrency,
   });
 }

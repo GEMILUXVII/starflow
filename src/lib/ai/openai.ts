@@ -29,30 +29,31 @@ Topics: ${repo.topics.length > 0 ? repo.topics.join(", ") : "（无）"}${readme
 ## 用户现有 Lists
 ${listsText}
 
-## 分类指南
+## 分类规则
 
-**核心原则：根据仓库的实际功能分类，不是技术栈！**
+**必须给出分类！不允许返回空结果。**
 
-常见分类映射：
-- proxy/clash/v2ray/翻墙/科学上网 → 代理工具
-- AI/LLM/GPT/Claude/机器学习 → AI工具
-- server/docker/k8s/运维/监控 → 运维/DevOps
-- vim/neovim/editor/IDE → 编辑器
-- cli/terminal/命令行 → CLI工具
-- database/数据库/redis/mysql → 数据库
+分类映射参考：
+- proxy/clash/v2ray/翻墙 → 代理工具
+- AI/LLM/GPT/Claude → AI工具
+- docker/k8s/运维 → DevOps
+- vim/neovim/editor → 编辑器
+- cli/terminal → CLI工具
+- database/redis/mysql → 数据库
+- react/vue/frontend → 前端
+- go/rust/python/java → 按功能分类，不按语言
 
-**决策流程：**
-1. 先从仓库名称、描述、README 中识别核心功能
-2. 匹配现有 List（>60% 相关就用现有的）
-3. 无匹配才建新 List（名称 ≤12字符）
+**决策：**
+1. 优先匹配现有 List
+2. 无匹配则必须建议新 List（名称 ≤10字符，如：代理工具、AI助手）
 
-## 输出（仅 JSON）
+## 输出（仅 JSON，必填所有字段）
 {
-  "listName": "现有 List 名称或 null",
-  "suggestNewList": false,
-  "newListName": "新名称（如代理工具、AI助手）",
+  "listName": "匹配的现有 List 名称，无匹配填 null",
+  "suggestNewList": true,
+  "newListName": "新 List 名称（必填，如无匹配现有 List）",
   "confidence": 0.8,
-  "reason": "核心功能 + 分类依据"
+  "reason": "一句话说明"
 }`;
   }
 
@@ -76,7 +77,7 @@ ${listsText}
           },
         ],
         temperature: 0.3,
-        max_tokens: 500,
+        max_tokens: 10000, // 足够空间返回完整 JSON
       }),
     });
 
@@ -97,6 +98,12 @@ ${listsText}
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
+    // 检查是否被截断
+    const finishReason = data.choices?.[0]?.finish_reason;
+    if (finishReason === "length") {
+      throw new Error("AI 响应被截断，请稍后重试");
+    }
+
     if (!content) {
       throw new Error("AI returned empty response");
     }
@@ -107,7 +114,24 @@ ${listsText}
       // 尝试提取 JSON（处理可能的 markdown 包装）
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
+        // 尝试修复不完整的 JSON
+        let jsonStr = jsonMatch[0];
+
+        // 如果 JSON 不完整，尝试补全
+        const openBraces = (jsonStr.match(/\{/g) || []).length;
+        const closeBraces = (jsonStr.match(/\}/g) || []).length;
+        if (openBraces > closeBraces) {
+          // 尝试截断到最后一个完整的字段
+          const lastComma = jsonStr.lastIndexOf(",");
+          const lastColon = jsonStr.lastIndexOf(":");
+          if (lastComma > lastColon) {
+            jsonStr = jsonStr.substring(0, lastComma) + "}";
+          } else {
+            throw new Error("JSON 不完整");
+          }
+        }
+
+        parsed = JSON.parse(jsonStr);
       } else {
         throw new Error("No JSON found in response");
       }

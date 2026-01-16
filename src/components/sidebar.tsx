@@ -51,8 +51,8 @@ export function Sidebar({
   const [languagesExpanded, setLanguagesExpanded] = useState(true);
 
   return (
-    <aside className="w-64 border-r bg-muted/10 flex flex-col">
-      <ScrollArea className="flex-1">
+    <aside className="w-64 border-r bg-muted/10 flex flex-col h-full overflow-hidden">
+      <ScrollArea className="flex-1 h-full">
         <div className="p-4 space-y-4">
           {/* 全部 Stars */}
           <div className="space-y-1">

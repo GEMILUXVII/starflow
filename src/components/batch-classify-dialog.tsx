@@ -46,6 +46,8 @@ interface BatchClassifyDialogProps {
   uncategorizedRepos: Repository[];
   existingLists: { id: string; name: string }[];
   onComplete: () => void;
+  requestInterval?: number;
+  concurrency?: number;
 }
 
 export function BatchClassifyDialog({
@@ -54,6 +56,8 @@ export function BatchClassifyDialog({
   uncategorizedRepos,
   existingLists,
   onComplete,
+  requestInterval = 1000,
+  concurrency = 3,
 }: BatchClassifyDialogProps) {
   const [phase, setPhase] = useState<"confirm" | "processing" | "review" | "done">("confirm");
   const [progress, setProgress] = useState(0);
@@ -124,7 +128,7 @@ export function BatchClassifyDialog({
     }
   };
 
-  // 批量处理（串行，带间隔）
+  // 批量处理（并行，带间隔）
   const startProcessing = async () => {
     setPhase("processing");
     setProgress(0);
@@ -132,24 +136,38 @@ export function BatchClassifyDialog({
     abortRef.current = false;
 
     const allResults: ClassifyResult[] = [];
-    const requestInterval = 2500; // 每个请求间隔 2.5 秒
+    const queue = [...uncategorizedRepos];
+    let activeCount = 0;
+    let completedCount = 0;
 
-    for (let i = 0; i < uncategorizedRepos.length; i++) {
-      if (abortRef.current) break;
+    const processNext = async (): Promise<void> => {
+      if (abortRef.current || queue.length === 0) return;
 
-      const repo = uncategorizedRepos[i];
-      setCurrentRepo(repo.fullName);
+      const repo = queue.shift()!;
+      activeCount++;
+      setCurrentRepo(`${repo.fullName} (+${activeCount - 1} 并行)`);
 
       const result = await classifyRepo(repo);
       allResults.push(result);
-      setResults([...allResults]);
-      setProgress(Math.round((allResults.length / totalRepos) * 100));
+      completedCount++;
+      activeCount--;
 
-      // 请求间隔（最后一个不需要等待）
-      if (i < uncategorizedRepos.length - 1 && !abortRef.current) {
+      setResults([...allResults]);
+      setProgress(Math.round((completedCount / totalRepos) * 100));
+
+      // 间隔后处理下一个
+      if (queue.length > 0 && !abortRef.current) {
         await delay(requestInterval);
+        await processNext();
       }
-    }
+    };
+
+    // 启动并行任务
+    const workers = Array(Math.min(concurrency, queue.length))
+      .fill(null)
+      .map(() => processNext());
+
+    await Promise.all(workers);
 
     // 处理完成，分析结果
     processResults(allResults);
@@ -308,7 +326,7 @@ export function BatchClassifyDialog({
                 <li>• 仅处理未分类的仓库</li>
                 <li>• 匹配现有 List 的会自动归类</li>
                 <li>• 建议新 List 的会让您确认后创建</li>
-                <li>• 预计耗时：约 {Math.ceil(totalRepos * 3 / 60)} 分钟（避免 API 限流）</li>
+                <li>• 预计耗时：约 {Math.ceil(totalRepos / concurrency * (requestInterval / 1000 + 2) / 60)} 分钟（{concurrency} 并发）</li>
               </ul>
             </div>
             <div className="flex justify-end gap-2">
@@ -358,23 +376,25 @@ export function BatchClassifyDialog({
                   <Checkbox
                     checked={suggestion.selected}
                     onCheckedChange={() => toggleListSelection(index)}
+                    className="mt-1 shrink-0"
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <FolderPlus className="h-4 w-4 text-primary" />
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <FolderPlus className="h-4 w-4 text-primary shrink-0" />
                       <span className="font-medium">{suggestion.name}</span>
                       <span className="text-xs text-muted-foreground">
                         ({suggestion.repos.length} 个仓库)
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      {suggestion.repos.map((r) => r.name).join(", ")}
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      {suggestion.repos.slice(0, 5).map((r) => r.name).join(", ")}
+                      {suggestion.repos.length > 5 && ` 等 ${suggestion.repos.length} 个`}
                     </p>
                   </div>
                 </div>
               ))}
             </ScrollArea>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setPhase("done")}>
                 跳过
               </Button>

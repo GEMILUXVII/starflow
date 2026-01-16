@@ -84,6 +84,8 @@ export function SettingsClient({ user }: { user: User }) {
     model: "gpt-3.5-turbo",
     enabled: false,
     hasApiKey: false,
+    requestInterval: 1000,
+    concurrency: 3,
   });
   const [aiLoading, setAiLoading] = useState(false);
   const [aiTesting, setAiTesting] = useState(false);
@@ -105,6 +107,8 @@ export function SettingsClient({ user }: { user: User }) {
           model: data.model || "gpt-3.5-turbo",
           enabled: data.enabled || false,
           hasApiKey: data.hasApiKey || false,
+          requestInterval: data.requestInterval || 1000,
+          concurrency: data.concurrency || 3,
         }));
       }
     } catch (error) {
@@ -124,6 +128,8 @@ export function SettingsClient({ user }: { user: User }) {
           baseUrl: aiConfig.baseUrl || undefined,
           model: aiConfig.model,
           enabled: aiConfig.enabled,
+          requestInterval: aiConfig.requestInterval,
+          concurrency: aiConfig.concurrency,
         }),
       });
 
@@ -730,6 +736,42 @@ export function SettingsClient({ user }: { user: User }) {
               </p>
             </div>
 
+            <div className="space-y-2">
+              <Label>请求间隔 (毫秒)</Label>
+              <Input
+                type="number"
+                placeholder="1000"
+                min={100}
+                max={10000}
+                step={100}
+                value={aiConfig.requestInterval}
+                onChange={(e) =>
+                  setAiConfig((prev) => ({ ...prev, requestInterval: parseInt(e.target.value) || 1000 }))
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                每个请求的间隔，建议 500-2000ms
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>并发数</Label>
+              <Input
+                type="number"
+                placeholder="3"
+                min={1}
+                max={10}
+                step={1}
+                value={aiConfig.concurrency}
+                onChange={(e) =>
+                  setAiConfig((prev) => ({ ...prev, concurrency: parseInt(e.target.value) || 3 }))
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                同时处理的请求数，建议 2-5，过高可能触发限流
+              </p>
+            </div>
+
             <div className="flex gap-2 pt-2">
               <Button
                 onClick={handleSaveAiConfig}
@@ -807,7 +849,7 @@ export function SettingsClient({ user }: { user: User }) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">版本</span>
-                <span>1.2.2</span>
+                <span>1.2.3</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">开源协议</span>

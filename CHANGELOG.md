@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.3] - 2025-01-16
+
+### Added / 新增
+
+- Configurable request interval and concurrency for batch classification
+- 可配置批量分类的请求间隔和并发数
+- Parallel processing support (default 3 concurrent requests)
+- 并行处理支持（默认 3 并发）
+
+### Improved / 改进
+
+- Prompt now requires classification (no empty results)
+- Prompt 现在强制要求给出分类（不允许空结果）
+- Fixed sidebar scrolling issue when too many Lists
+- 修复 Lists 过多时侧边栏无法滚动的问题
+- Fixed repository names overflow in batch classify dialog
+- 修复批量分类对话框中仓库名称溢出问题
+- Reduced default request interval from 2.5s to 1s
+- 默认请求间隔从 2.5 秒降至 1 秒
+
+---
+
 ## [1.2.2] - 2025-01-15
 
 ### Added / 新增
@@ -107,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.3]: https://github.com/GEMILUXVII/starflow/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/GEMILUXVII/starflow/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/GEMILUXVII/starflow/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/GEMILUXVII/starflow/compare/v1.1.1...v1.2.0
