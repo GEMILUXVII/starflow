@@ -185,24 +185,26 @@ export function RepositoryCard({
                   <Badge
                     key={list.id}
                     variant="secondary"
-                    className="text-xs group/badge"
+                    className="text-xs group/badge cursor-default px-1.5"
                     style={{ borderColor: list.color }}
                   >
-                    <span
-                      className="w-2 h-2 rounded-full mr-1"
-                      style={{ backgroundColor: list.color }}
-                    />
-                    {list.name}
-                    <button
-                      className="ml-1 opacity-0 group-hover/badge:opacity-100 hover:text-destructive transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveFromList?.(repository.id, list.id);
-                      }}
-                      title="从此 List 移除"
-                    >
-                      ×
-                    </button>
+                    <span className="flex items-center">
+                      <span
+                        className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
+                        style={{ backgroundColor: list.color }}
+                      />
+                      {list.name}
+                      <span
+                        className="ml-1 w-2 flex-shrink-0 text-center opacity-0 group-hover/badge:opacity-100 hover:text-destructive transition-opacity cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveFromList?.(repository.id, list.id);
+                        }}
+                        title="从此 List 移除"
+                      >
+                        ×
+                      </span>
+                    </span>
                   </Badge>
                 ))}
               </div>
