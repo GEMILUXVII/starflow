@@ -87,9 +87,18 @@ ${standardCategories}
 }`;
   }
 
+  // 规范化 baseUrl，自动补全 /v1
+  private normalizeBaseUrl(): string {
+    let baseUrl = (this.config.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+    // 如果不以 /v1 结尾，自动补上（兼容用户只填域名的情况）
+    if (!baseUrl.endsWith("/v1")) {
+      baseUrl = `${baseUrl}/v1`;
+    }
+    return baseUrl;
+  }
+
   async classify(repo: RepoInfo, lists: ListInfo[]): Promise<ClassifyResult> {
-    // 移除末尾的斜杠
-    const baseUrl = (this.config.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+    const baseUrl = this.normalizeBaseUrl();
     const model = this.config.model || "gpt-3.5-turbo";
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
@@ -202,8 +211,7 @@ ${standardCategories}
   }
 
   async testConnection(): Promise<boolean> {
-    // 移除末尾的斜杠
-    const baseUrl = (this.config.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+    const baseUrl = this.normalizeBaseUrl();
     const model = this.config.model || "gpt-3.5-turbo";
 
     try {
