@@ -119,14 +119,21 @@
   },
   "filter": {
     "title": "Filters",
+    "advancedFilter": "Advanced Filters",
+    "starCount": "Star Count",
+    "min": "Min",
+    "max": "Max",
     "minStars": "Min Stars",
     "maxStars": "Max Stars",
+    "notes": "Notes",
+    "all": "All",
     "hasNotes": "Has Notes",
     "archived": "Archive Status",
-    "archivedOnly": "Archived Only",
+    "archivedOnly": "Archived",
     "notArchived": "Not Archived",
     "archivedAll": "All",
-    "reset": "Reset Filters"
+    "reset": "Reset",
+    "apply": "Apply Filters"
   },
   "settings": {
     "title": "Settings",

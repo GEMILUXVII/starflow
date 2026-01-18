@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ interface FilterPopoverProps {
 }
 
 export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) {
+  const t = useTranslations("filter");
   const [open, setOpen] = useState(false);
   const [localFilters, setLocalFilters] = useState<Filters>(filters);
 
@@ -56,7 +58,7 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="relative">
           <Filter className="h-4 w-4 mr-1" />
-          筛选
+          {t("title")}
           {activeFilterCount > 0 && (
             <Badge
               variant="secondary"
@@ -69,15 +71,15 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
-          <div className="font-medium">高级筛选</div>
+          <div className="font-medium">{t("advancedFilter")}</div>
 
           {/* Star 数量范围 */}
           <div className="space-y-2">
-            <Label>Star 数量</Label>
+            <Label>{t("starCount")}</Label>
             <div className="flex items-center gap-2">
               <Input
                 type="number"
-                placeholder="最小"
+                placeholder={t("min")}
                 value={localFilters.minStars || ""}
                 onChange={(e) =>
                   setLocalFilters({
@@ -90,7 +92,7 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
               <span className="text-muted-foreground">-</span>
               <Input
                 type="number"
-                placeholder="最大"
+                placeholder={t("max")}
                 value={localFilters.maxStars || ""}
                 onChange={(e) =>
                   setLocalFilters({
@@ -105,7 +107,7 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
 
           {/* 是否有笔记 */}
           <div className="space-y-2">
-            <Label>笔记</Label>
+            <Label>{t("notes")}</Label>
             <Select
               value={localFilters.hasNotes === true ? "true" : "all"}
               onValueChange={(value) =>
@@ -119,15 +121,15 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="true">有笔记</SelectItem>
+                <SelectItem value="all">{t("all")}</SelectItem>
+                <SelectItem value="true">{t("hasNotes")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* 是否归档 */}
           <div className="space-y-2">
-            <Label>归档状态</Label>
+            <Label>{t("archived")}</Label>
             <Select
               value={localFilters.isArchived || "all"}
               onValueChange={(value) =>
@@ -141,9 +143,9 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="false">未归档</SelectItem>
-                <SelectItem value="true">已归档</SelectItem>
+                <SelectItem value="all">{t("archivedAll")}</SelectItem>
+                <SelectItem value="false">{t("notArchived")}</SelectItem>
+                <SelectItem value="true">{t("archivedOnly")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -152,10 +154,10 @@ export function FilterPopover({ filters, onFiltersChange }: FilterPopoverProps) 
           <div className="flex justify-between pt-2">
             <Button variant="ghost" size="sm" onClick={handleReset}>
               <X className="h-4 w-4 mr-1" />
-              重置
+              {t("reset")}
             </Button>
             <Button size="sm" onClick={handleApply}>
-              应用筛选
+              {t("apply")}
             </Button>
           </div>
         </div>
