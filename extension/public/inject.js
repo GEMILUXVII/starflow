@@ -387,6 +387,13 @@
 
     if (state.loading) {
       contentHtml = `<div class="sf-center sf-muted">Loading...</div>`;
+    } else if (!starflowBaseUrl) {
+      // Server URL not configured
+      contentHtml = `
+        <div class="sf-center">
+          <p class="sf-muted">Server not configured</p>
+          <p class="sf-muted" style="font-size: 11px; margin-top: 4px;">Please configure server URL in the Starflow extension popup first.</p>
+        </div>`;
     } else if (!state.isAuthenticated) {
       contentHtml = `
         <div class="sf-center">
