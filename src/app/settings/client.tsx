@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,8 @@ interface User {
 
 export function SettingsClient({ user }: { user: User }) {
   const router = useRouter();
+  const t = useTranslations("settings");
+  const tStars = useTranslations("stars");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<{
@@ -142,8 +145,8 @@ export function SettingsClient({ user }: { user: User }) {
         }));
         setAlertMessage({
           open: true,
-          title: "保存成功",
-          message: "AI 配置已保存",
+          title: t("saveSuccess"),
+          message: t("aiConfigSaved"),
           variant: "success",
         });
       } else {
@@ -153,8 +156,8 @@ export function SettingsClient({ user }: { user: User }) {
       console.error("Save AI config error:", error);
       setAlertMessage({
         open: true,
-        title: "保存失败",
-        message: "保存 AI 配置失败",
+        title: t("saveFailed"),
+        message: t("aiConfigSaveFailed"),
         variant: "error",
       });
     } finally {
@@ -171,15 +174,15 @@ export function SettingsClient({ user }: { user: User }) {
       if (data.success) {
         setAlertMessage({
           open: true,
-          title: "连接成功",
-          message: "AI 服务连接正常",
+          title: t("connectionSuccess"),
+          message: t("aiServiceNormal"),
           variant: "success",
         });
       } else {
         setAlertMessage({
           open: true,
-          title: "连接失败",
-          message: data.error || "无法连接到 AI 服务",
+          title: t("connectionFailed"),
+          message: data.error || t("cannotConnectAi"),
           variant: "error",
         });
       }
@@ -187,8 +190,8 @@ export function SettingsClient({ user }: { user: User }) {
       console.error("Test AI connection error:", error);
       setAlertMessage({
         open: true,
-        title: "测试失败",
-        message: "测试连接时发生错误",
+        title: t("testFailed"),
+        message: t("testError"),
         variant: "error",
       });
     } finally {
@@ -223,8 +226,8 @@ export function SettingsClient({ user }: { user: User }) {
       console.error("Export error:", error);
       setAlertMessage({
         open: true,
-        title: "导出失败",
-        message: "导出失败，请重试",
+        title: t("operationFailed"),
+        message: t("exportFailed"),
         variant: "error",
       });
     }
@@ -250,21 +253,29 @@ export function SettingsClient({ user }: { user: User }) {
       const result = await res.json();
 
       if (res.ok) {
+        let message = t("importSuccess", {
+          listsCreated: result.results.listsCreated,
+          reposUpdated: result.results.reposUpdated,
+          notesCreated: result.results.notesCreated,
+        });
+        if (result.results.listsSkipped > 0) {
+          message += " " + t("importSkipped", { listsSkipped: result.results.listsSkipped });
+        }
         setImportResult({
           success: true,
-          message: `导入成功！创建 ${result.results.listsCreated} 个 List，更新 ${result.results.reposUpdated} 个仓库，导入 ${result.results.notesCreated} 条笔记。${result.results.listsSkipped > 0 ? ` (跳过 ${result.results.listsSkipped} 个已存在的 List)` : ""}`,
+          message,
         });
       } else {
         setImportResult({
           success: false,
-          message: result.error || "导入失败",
+          message: result.error || t("importFailed"),
         });
       }
     } catch (error) {
       console.error("Import error:", error);
       setImportResult({
         success: false,
-        message: "导入失败，请确保文件格式正确",
+        message: t("importFormatError"),
       });
     } finally {
       setImporting(false);
@@ -277,8 +288,8 @@ export function SettingsClient({ user }: { user: User }) {
   const handleClearNotes = async () => {
     setConfirmDialog({
       open: true,
-      title: "清除所有笔记",
-      description: "确定要删除所有笔记吗？此操作不可恢复。",
+      title: t("clearAllNotes"),
+      description: t("clearNotesConfirm"),
       variant: "destructive",
       onConfirm: async () => {
         setConfirmDialog({ ...confirmDialog, open: false });
@@ -288,16 +299,16 @@ export function SettingsClient({ user }: { user: User }) {
           router.refresh();
           setAlertMessage({
             open: true,
-            title: "操作成功",
-            message: "所有笔记已删除",
+            title: t("operationSuccess"),
+            message: t("allNotesDeleted"),
             variant: "success",
           });
         } catch (error) {
           console.error("Clear notes error:", error);
           setAlertMessage({
             open: true,
-            title: "操作失败",
-            message: "删除失败，请重试",
+            title: t("operationFailed"),
+            message: t("deleteFailed"),
             variant: "error",
           });
         } finally {
@@ -310,8 +321,8 @@ export function SettingsClient({ user }: { user: User }) {
   const handleClearLists = async () => {
     setConfirmDialog({
       open: true,
-      title: "清除所有 Lists",
-      description: "确定要删除所有 Lists 吗？此操作不可恢复。",
+      title: t("clearAllLists"),
+      description: t("clearListsConfirm"),
       variant: "destructive",
       onConfirm: async () => {
         setConfirmDialog({ ...confirmDialog, open: false });
@@ -321,16 +332,16 @@ export function SettingsClient({ user }: { user: User }) {
           router.refresh();
           setAlertMessage({
             open: true,
-            title: "操作成功",
-            message: "所有 Lists 已删除",
+            title: t("operationSuccess"),
+            message: t("allListsDeleted"),
             variant: "success",
           });
         } catch (error) {
           console.error("Clear lists error:", error);
           setAlertMessage({
             open: true,
-            title: "操作失败",
-            message: "删除失败，请重试",
+            title: t("operationFailed"),
+            message: t("deleteFailed"),
             variant: "error",
           });
         } finally {
@@ -343,14 +354,14 @@ export function SettingsClient({ user }: { user: User }) {
   const handleResetData = async () => {
     setConfirmDialog({
       open: true,
-      title: "重置所有数据",
-      description: "确定要重置所有数据吗？这将删除所有 Lists、笔记，并重新从 GitHub 同步。此操作不可恢复。",
+      title: t("resetAllData"),
+      description: t("resetDataConfirm"),
       variant: "destructive",
       onConfirm: () => {
         setConfirmDialog({
           open: true,
-          title: "再次确认",
-          description: "所有本地数据将被清除，是否继续？",
+          title: t("confirmAgain"),
+          description: t("resetDataConfirm2"),
           variant: "destructive",
           onConfirm: async () => {
             setConfirmDialog({ ...confirmDialog, open: false });
@@ -359,8 +370,8 @@ export function SettingsClient({ user }: { user: User }) {
               await fetch("/api/reset", { method: "POST" });
               setAlertMessage({
                 open: true,
-                title: "操作成功",
-                message: "数据已重置，即将刷新页面",
+                title: t("operationSuccess"),
+                message: t("dataResetSuccess"),
                 variant: "success",
               });
               setTimeout(() => {
@@ -370,8 +381,8 @@ export function SettingsClient({ user }: { user: User }) {
               console.error("Reset error:", error);
               setAlertMessage({
                 open: true,
-                title: "操作失败",
-                message: "重置失败，请重试",
+                title: t("operationFailed"),
+                message: t("resetFailed"),
                 variant: "error",
               });
             } finally {
@@ -392,27 +403,27 @@ export function SettingsClient({ user }: { user: User }) {
           onClick={() => router.push("/stars")}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          返回
+          {t("back")}
         </Button>
 
-        <h1 className="text-2xl font-bold mb-6">设置</h1>
+        <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
 
         {/* Display Preferences */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings2 className="h-5 w-5" />
-              显示偏好
+              {t("displayPreferences")}
             </CardTitle>
             <CardDescription>
-              自定义仓库列表的显示方式
+              {t("displayPreferencesDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <Label>默认排序</Label>
-                <p className="text-sm text-muted-foreground">新打开页面时的默认排序方式</p>
+                <Label>{t("defaultSort")}</Label>
+                <p className="text-sm text-muted-foreground">{t("defaultSortDesc")}</p>
               </div>
               <Select
                 value={preferences.defaultSort}
@@ -422,18 +433,18 @@ export function SettingsClient({ user }: { user: User }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="starredAt">Star 时间</SelectItem>
-                  <SelectItem value="stargazersCount">Stars 数量</SelectItem>
-                  <SelectItem value="pushedAt">最近更新</SelectItem>
-                  <SelectItem value="name">名称</SelectItem>
+                  <SelectItem value="starredAt">{tStars("sortBy.starredAt")}</SelectItem>
+                  <SelectItem value="stargazersCount">{tStars("sortBy.stargazersCount")}</SelectItem>
+                  <SelectItem value="pushedAt">{tStars("sortBy.pushedAt")}</SelectItem>
+                  <SelectItem value="name">{tStars("sortBy.name")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <Label>每页显示数量</Label>
-                <p className="text-sm text-muted-foreground">每次加载的仓库数量</p>
+                <Label>{t("itemsPerPage")}</Label>
+                <p className="text-sm text-muted-foreground">{t("itemsPerPageDesc")}</p>
               </div>
               <Select
                 value={preferences.itemsPerPage.toString()}
@@ -452,8 +463,8 @@ export function SettingsClient({ user }: { user: User }) {
 
             <div className="flex items-center justify-between">
               <div>
-                <Label>紧凑视图</Label>
-                <p className="text-sm text-muted-foreground">使用更紧凑的卡片布局</p>
+                <Label>{t("compactView")}</Label>
+                <p className="text-sm text-muted-foreground">{t("compactViewDesc")}</p>
               </div>
               <Switch
                 checked={preferences.compactView}
@@ -468,10 +479,10 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Github className="h-5 w-5" />
-              GitHub 账户
+              {t("githubAccount")}
             </CardTitle>
             <CardDescription>
-              当前连接的 GitHub 账户信息
+              {t("githubAccountDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -498,10 +509,10 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="h-5 w-5" />
-              导出数据
+              {t("exportData")}
             </CardTitle>
             <CardDescription>
-              导出你的 Stars、Lists 和笔记数据
+              {t("exportDataDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex gap-4">
@@ -511,7 +522,7 @@ export function SettingsClient({ user }: { user: User }) {
               className="flex-1"
             >
               <FileJson className="mr-2 h-4 w-4" />
-              导出 JSON
+              {t("exportJson")}
             </Button>
             <Button
               variant="outline"
@@ -519,7 +530,7 @@ export function SettingsClient({ user }: { user: User }) {
               className="flex-1"
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              导出 CSV
+              {t("exportCsv")}
             </Button>
           </CardContent>
         </Card>
@@ -529,10 +540,10 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
-              导入数据
+              {t("importData")}
             </CardTitle>
             <CardDescription>
-              从 JSON 备份文件导入 Lists 和笔记（仅导入已 Star 的仓库的数据）
+              {t("importDataDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -553,12 +564,12 @@ export function SettingsClient({ user }: { user: User }) {
               {importing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  导入中...
+                  {t("importing")}
                 </>
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  选择 JSON 文件导入
+                  {t("selectJsonFile")}
                 </>
               )}
             </Button>
@@ -582,17 +593,17 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trash2 className="h-5 w-5" />
-              数据管理
+              {t("dataManagement")}
             </CardTitle>
             <CardDescription>
-              清除或重置本地数据
+              {t("dataManagementDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">清除所有笔记</p>
-                <p className="text-sm text-muted-foreground">删除所有仓库笔记</p>
+                <p className="font-medium">{t("clearAllNotes")}</p>
+                <p className="text-sm text-muted-foreground">{t("clearAllNotesDesc")}</p>
               </div>
               <Button
                 variant="outline"
@@ -603,15 +614,15 @@ export function SettingsClient({ user }: { user: User }) {
                 {clearing === "notes" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "清除"
+                  t("clear")
                 )}
               </Button>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">清除所有 Lists</p>
-                <p className="text-sm text-muted-foreground">删除所有分类列表</p>
+                <p className="font-medium">{t("clearAllLists")}</p>
+                <p className="text-sm text-muted-foreground">{t("clearAllListsDesc")}</p>
               </div>
               <Button
                 variant="outline"
@@ -622,15 +633,15 @@ export function SettingsClient({ user }: { user: User }) {
                 {clearing === "lists" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "清除"
+                  t("clear")
                 )}
               </Button>
             </div>
 
             <div className="flex items-center justify-between border-t pt-4">
               <div>
-                <p className="font-medium text-destructive">重置所有数据</p>
-                <p className="text-sm text-muted-foreground">清除所有本地数据并重新同步</p>
+                <p className="font-medium text-destructive">{t("resetAllData")}</p>
+                <p className="text-sm text-muted-foreground">{t("resetAllDataDesc")}</p>
               </div>
               <Button
                 variant="destructive"
@@ -641,7 +652,7 @@ export function SettingsClient({ user }: { user: User }) {
                 {clearing === "reset" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "重置"
+                  t("reset")
                 )}
               </Button>
             </div>
@@ -653,17 +664,17 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
-              AI 智能分类
+              {t("aiClassification")}
             </CardTitle>
             <CardDescription>
-              配置 AI 服务，自动为仓库推荐分类
+              {t("aiClassificationDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>启用 AI 分类</Label>
-                <p className="text-sm text-muted-foreground">开启后可使用 AI 自动分类功能</p>
+                <Label>{t("enableAi")}</Label>
+                <p className="text-sm text-muted-foreground">{t("enableAiDesc")}</p>
               </div>
               <Switch
                 checked={aiConfig.enabled}
@@ -674,7 +685,7 @@ export function SettingsClient({ user }: { user: User }) {
             </div>
 
             <div className="space-y-2">
-              <Label>AI 服务商</Label>
+              <Label>{t("aiProvider")}</Label>
               <Select
                 value={aiConfig.provider}
                 onValueChange={(value) =>
@@ -685,17 +696,17 @@ export function SettingsClient({ user }: { user: User }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="openai">OpenAI / 兼容 API</SelectItem>
-                  <SelectItem value="ollama">Ollama (本地)</SelectItem>
+                  <SelectItem value="openai">{t("aiProviderOpenai")}</SelectItem>
+                  <SelectItem value="ollama">{t("aiProviderOllama")}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                支持 OpenAI、Azure、各类代理服务 (one-api 等)
+                {t("aiProviderDesc")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>API 端点 (可选)</Label>
+              <Label>{t("apiEndpoint")}</Label>
               <Input
                 type="url"
                 placeholder={aiConfig.provider === "ollama" ? "http://localhost:11434/v1" : "https://api.openai.com/v1"}
@@ -705,12 +716,12 @@ export function SettingsClient({ user }: { user: User }) {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                留空使用默认端点，或填写代理/自建服务地址
+                {t("apiEndpointDesc")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>API Key {aiConfig.hasApiKey && <span className="text-green-600">(已配置)</span>}</Label>
+              <Label>{t("apiKey")} {aiConfig.hasApiKey && <span className="text-green-600">({t("apiKeyConfigured")})</span>}</Label>
               <Input
                 type="password"
                 placeholder={aiConfig.hasApiKey ? "••••••••" : "sk-..."}
@@ -722,7 +733,7 @@ export function SettingsClient({ user }: { user: User }) {
             </div>
 
             <div className="space-y-2">
-              <Label>模型</Label>
+              <Label>{t("model")}</Label>
               <Input
                 type="text"
                 placeholder="gpt-3.5-turbo"
@@ -732,12 +743,12 @@ export function SettingsClient({ user }: { user: User }) {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                推荐：gpt-3.5-turbo (便宜) 或 gpt-4o-mini (更准确)
+                {t("modelDesc")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>请求间隔 (毫秒)</Label>
+              <Label>{t("requestInterval")}</Label>
               <Input
                 type="number"
                 placeholder="1000"
@@ -750,12 +761,12 @@ export function SettingsClient({ user }: { user: User }) {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                每个请求的间隔，建议 500-2000ms
+                {t("requestIntervalDesc")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>并发数</Label>
+              <Label>{t("concurrency")}</Label>
               <Input
                 type="number"
                 placeholder="3"
@@ -768,7 +779,7 @@ export function SettingsClient({ user }: { user: User }) {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                同时处理的请求数，建议 2-5，过高可能触发限流
+                {t("concurrencyDesc")}
               </p>
             </div>
 
@@ -780,10 +791,10 @@ export function SettingsClient({ user }: { user: User }) {
                 {aiLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    保存中...
+                    {t("saving")}
                   </>
                 ) : (
-                  "保存配置"
+                  t("saveConfig")
                 )}
               </Button>
               <Button
@@ -794,10 +805,10 @@ export function SettingsClient({ user }: { user: User }) {
                 {aiTesting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    测试中...
+                    {t("testing")}
                   </>
                 ) : (
-                  "测试连接"
+                  t("testConnection")
                 )}
               </Button>
             </div>
@@ -809,28 +820,28 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Keyboard className="h-5 w-5" />
-              键盘快捷键
+              {t("keyboardShortcuts")}
             </CardTitle>
             <CardDescription>
-              可用的键盘快捷键
+              {t("keyboardShortcutsDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">聚焦搜索框</span>
+                <span className="text-muted-foreground">{t("focusSearch")}</span>
                 <kbd className="px-2 py-1 bg-muted rounded text-xs">/</kbd>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">同步仓库</span>
+                <span className="text-muted-foreground">{t("syncRepos")}</span>
                 <kbd className="px-2 py-1 bg-muted rounded text-xs">r</kbd>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">切换主题</span>
+                <span className="text-muted-foreground">{t("toggleTheme")}</span>
                 <kbd className="px-2 py-1 bg-muted rounded text-xs">t</kbd>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">返回顶部</span>
+                <span className="text-muted-foreground">{t("scrollToTop")}</span>
                 <kbd className="px-2 py-1 bg-muted rounded text-xs">g g</kbd>
               </div>
             </div>
@@ -842,21 +853,21 @@ export function SettingsClient({ user }: { user: User }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Info className="h-5 w-5" />
-              关于
+              {t("about")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">版本</span>
+                <span className="text-muted-foreground">{t("version")}</span>
                 <span>1.2.7</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">开源协议</span>
+                <span className="text-muted-foreground">{t("license")}</span>
                 <span>MIT</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">项目地址</span>
+                <span className="text-muted-foreground">{t("projectUrl")}</span>
                 <a
                   href="https://github.com/GEMILUXVII/starflow"
                   target="_blank"
