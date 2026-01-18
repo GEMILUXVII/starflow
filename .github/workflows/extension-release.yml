@@ -21,19 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      - name: Install pnpm
+        run: npm install -g pnpm
+
       - name: Install dependencies
         working-directory: extension
-        run: pnpm install --no-frozen-lockfile
+        run: |
+          pnpm install
+          ls -la node_modules/.bin/ || echo "No binaries found"
 
       - name: Extract version from tag
         id: version
@@ -56,11 +56,11 @@ jobs:
 
       - name: Build Chrome extension
         working-directory: extension
-        run: pnpm zip
+        run: pnpm run zip
 
       - name: Build Firefox extension
         working-directory: extension
-        run: pnpm zip:firefox
+        run: pnpm run zip:firefox
 
       - name: List built files
         working-directory: extension/.output
