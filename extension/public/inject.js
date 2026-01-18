@@ -412,7 +412,8 @@
   let state = {
     isOpen: false, loading: false, isAuthenticated: false, lists: [], repo: null, repoName: '',
     aiLoading: false, aiSuggestion: null, note: '', originalNote: '', showNote: false, savingNote: false,
-    error: null, newListName: '', creatingList: false, loadingListId: null
+    error: null, newListName: '', creatingList: false, loadingListId: null,
+    syncing: false, syncMessage: null
   };
 
   function renderButton() {
@@ -477,13 +478,29 @@
           <a href="${starflowBaseUrl}" target="_blank" class="sf-btn sf-btn-primary">Login</a>
         </div>`;
     } else if (!state.repo) {
-      contentHtml = `
-        <div class="sf-center">
-           <p class="sf-muted">Repository not synced</p>
-           <button id="sf-sync-btn" class="sf-btn sf-btn-primary">
-             ${Icons.sync} Sync Stars
-           </button>
-        </div>`;
+      // Show different message based on sync state
+      let syncContent = '';
+      if (state.syncMessage === 'not_starred') {
+        syncContent = `
+          <p class="sf-muted" style="margin-bottom: 8px;">⚠️ This repository is not in your GitHub Stars.</p>
+          <p class="sf-muted" style="font-size: 11px; margin-bottom: 12px;">Star it on GitHub first, then sync again.</p>
+          <button id="sf-sync-btn" class="sf-btn" ${state.syncing ? 'disabled' : ''}>
+            ${state.syncing ? 'Syncing...' : `${Icons.sync} Sync Again`}
+          </button>`;
+      } else if (state.syncMessage === 'error') {
+        syncContent = `
+          <p class="sf-muted" style="color: #f85149; margin-bottom: 12px;">❌ Sync failed. Please try again.</p>
+          <button id="sf-sync-btn" class="sf-btn" ${state.syncing ? 'disabled' : ''}>
+            ${state.syncing ? 'Syncing...' : `${Icons.sync} Retry Sync`}
+          </button>`;
+      } else {
+        syncContent = `
+          <p class="sf-muted">Repository not synced</p>
+          <button id="sf-sync-btn" class="sf-btn sf-btn-primary" ${state.syncing ? 'disabled' : ''}>
+            ${state.syncing ? 'Syncing...' : `${Icons.sync} Sync Stars`}
+          </button>`;
+      }
+      contentHtml = `<div class="sf-center">${syncContent}</div>`;
     } else {
       // AI Section
       let aiSection = '';
@@ -580,12 +597,26 @@
       });
 
       dropdown.querySelector('#sf-sync-btn')?.addEventListener('click', async () => {
+          state.syncing = true;
+          state.syncMessage = null;
+          renderDropdown();
           try {
               await starflowApi.syncStars();
-              fetchData();
+              // Re-fetch repo status after sync
+              const repo = await starflowApi.getRepoStatus(state.repoName);
+              state.repo = repo;
+              if (!repo) {
+                  // Repo still not found - user hasn't starred it on GitHub
+                  state.syncMessage = 'not_starred';
+              }
           } catch(e) {
-              state.error = 'Failed to sync stars';
-              renderDropdown();
+              console.error('Sync failed:', e);
+              state.syncMessage = 'error';
+          }
+          state.syncing = false;
+          renderDropdown();
+          if (state.repo) {
+              renderButton();
           }
       });
       dropdown.querySelector('#sf-ai-btn')?.addEventListener('click', async () => {
