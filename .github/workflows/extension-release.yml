@@ -26,14 +26,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
       - name: Install dependencies
         working-directory: extension
         run: |
-          pnpm install
-          ls -la node_modules/.bin/ || echo "No binaries found"
+          # Use npm instead of pnpm to avoid workspace issues
+          npm install
+          ls -la node_modules/.bin/wxt || echo "wxt not found"
 
       - name: Extract version from tag
         id: version
@@ -56,11 +54,11 @@ jobs:
 
       - name: Build Chrome extension
         working-directory: extension
-        run: pnpm run zip
+        run: npm run zip
 
       - name: Build Firefox extension
         working-directory: extension
-        run: pnpm run zip:firefox
+        run: npm run zip:firefox
 
       - name: List built files
         working-directory: extension/.output
