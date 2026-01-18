@@ -710,7 +710,8 @@
 
       container = document.createElement('li');
       container.id = 'starflow-btn-container';
-      container.className = 'd-inline-block ml-2 position-relative';
+      container.className = 'd-inline-block position-relative';
+      // No extra margin - rely on GitHub's natural li spacing
       const pathParts = window.location.pathname.split('/');
       if (pathParts.length < 3) return;
       state.repoName = `${pathParts[1]}/${pathParts[2]}`;
