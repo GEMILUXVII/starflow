@@ -720,11 +720,56 @@
 
   // Init
   console.log('Starflow: Inject script loaded');
+  let lastUrl = location.href;
+
+  function checkAndMount() {
+    // Check if URL changed (GitHub SPA navigation)
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+      // Reset state for new page
+      if (container) {
+        container.remove();
+        container = null;
+        button = null;
+        dropdown = null;
+      }
+      state.isOpen = false;
+      state.repo = null;
+      state.repoName = '';
+      state.aiSuggestion = null;
+      state.note = '';
+      state.originalNote = '';
+      state.showNote = false;
+    }
+
+    // Try to mount if not already mounted
+    if (!document.getElementById('starflow-btn-container')) {
+      mount();
+    }
+  }
+
+  // Initial mount
   mount();
+
+  // Watch for DOM changes (GitHub SPA navigation)
   const observer = new MutationObserver(() => {
-      if (!document.getElementById('starflow-btn-container')) mount();
+    checkAndMount();
   });
   observer.observe(document.body, { childList: true, subtree: true });
+
+  // Also listen for popstate (browser back/forward)
+  window.addEventListener('popstate', () => {
+    setTimeout(checkAndMount, 100);
+  });
+
+  // Listen for GitHub's turbo navigation
+  document.addEventListener('turbo:load', () => {
+    checkAndMount();
+  });
+  document.addEventListener('turbo:render', () => {
+    checkAndMount();
+  });
+
   document.addEventListener('click', (e) => {
       if (state.isOpen && container && !container.contains(e.target)) {
           state.isOpen = false;
