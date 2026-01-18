@@ -236,17 +236,51 @@
   // ==========================================
   const STARFLOW_API = 'http://localhost:3000/api';
 
+  let extensionInvalidated = false;
+
+  function handleExtensionInvalidated() {
+    if (extensionInvalidated) return;
+    extensionInvalidated = true;
+    console.log('Starflow: Extension context invalidated, cleaning up...');
+    // Remove UI elements
+    if (container) {
+      container.remove();
+      container = null;
+      button = null;
+      dropdown = null;
+    }
+    // Stop observing
+    if (typeof observer !== 'undefined' && observer) {
+      observer.disconnect();
+    }
+  }
+
   async function sendMessage(message) {
+    if (extensionInvalidated) return null;
+
     try {
       if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
         console.error('Starflow: chrome.runtime is not available');
         return null;
       }
+
+      // Check if extension context is still valid
+      if (!chrome.runtime.id) {
+        handleExtensionInvalidated();
+        return null;
+      }
+
       const response = await new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(message, (res) => {
           if (chrome.runtime.lastError) {
-             // Ignore "The message port closed before a response was received" if we don't care about response
-             resolve(null);
+             const errorMsg = chrome.runtime.lastError.message || '';
+             if (errorMsg.includes('Extension context invalidated')) {
+               handleExtensionInvalidated();
+               resolve(null);
+             } else {
+               // Ignore other errors like "message port closed"
+               resolve(null);
+             }
           } else {
              resolve(res);
           }
@@ -258,6 +292,10 @@
       }
       return response ? response.data : null;
     } catch (error) {
+      if (error.message && error.message.includes('Extension context invalidated')) {
+        handleExtensionInvalidated();
+        return null;
+      }
       console.error(`Starflow Message ${message.type} failed:`, error);
       throw error;
     }
@@ -421,6 +459,12 @@
 
   function attachEvents() {
       if (!dropdown) return;
+
+      // Prevent all clicks inside dropdown from closing it
+      dropdown.addEventListener('click', (e) => {
+          e.stopPropagation();
+      });
+
       dropdown.querySelector('#sf-sync-btn')?.addEventListener('click', async () => {
           await starflowApi.syncStars();
           fetchData();
@@ -432,7 +476,7 @@
               if (state.repo) {
                  const res = await starflowApi.classifyRepo(state.repo.id);
                  if (res.suggestion) {
-                     state.aiSuggestion = { listName: res.suggestion.primary, reason: res.suggestion.reasoning };
+                     state.aiSuggestion = { listName: res.suggestion.suggestedListName || res.suggestion.newListName, reason: res.suggestion.reason };
                  }
               }
           } catch(e) { console.error(e); }
