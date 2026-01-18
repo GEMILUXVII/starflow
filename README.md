@@ -22,6 +22,7 @@
   <a href="#预览">预览</a> |
   <a href="#功能特性">功能特性</a> |
   <a href="#快速开始">快速开始</a> |
+  <a href="#浏览器扩展">浏览器扩展</a> |
   <a href="#ai-分类">AI 分类</a> |
   <a href="#开发">开发</a> |
   <a href="CHANGELOG.md">更新日志</a>
@@ -181,6 +182,43 @@ docker compose exec starflow npx prisma db push --skip-generate
 ```
 
 然后就可以在 http://serverip:3000 看到starflow的页面了
+
+---
+
+## 浏览器扩展
+
+Starflow 提供浏览器扩展，可以直接在 GitHub 仓库页面快速管理 Stars。
+
+### 功能
+
+- **快速分类** - 在 GitHub 页面直接将仓库添加到 Lists
+- **AI 建议** - 一键获取 AI 分类建议
+- **快速笔记** - 为仓库添加备注
+- **同步 Stars** - 快速同步最新的 Star 数据
+
+### 下载
+
+从 [Releases](https://github.com/GEMILUXVII/starflow/releases) 页面下载最新版本：
+- `starflow-extension-x.x.x-chrome.zip` - Chrome / Edge
+- `starflow-extension-x.x.x-firefox.zip` - Firefox
+
+### 安装
+
+**Chrome / Edge：**
+1. 下载并**解压** zip 文件到一个文件夹
+2. 打开 `chrome://extensions/`（或 `edge://extensions/`）
+3. 开启右上角的「**开发者模式**」
+4. 点击「**加载已解压的扩展程序**」
+5. 选择解压后的**文件夹**（不是 zip 文件）
+
+**Firefox：**
+1. 下载 zip 文件（无需解压）
+2. 打开 `about:addons` → ⚙️ → 「从文件安装附加组件...」
+3. 选择下载的 **zip 文件**
+
+### 配置
+
+安装后，点击浏览器工具栏的 Starflow 图标，在设置中填入你的 Starflow 服务器地址。
 
 ---
 

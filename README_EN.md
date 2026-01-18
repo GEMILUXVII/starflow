@@ -22,6 +22,7 @@
   <a href="#preview">Preview</a> |
   <a href="#features">Features</a> |
   <a href="#quick-start">Quick Start</a> |
+  <a href="#browser-extension">Browser Extension</a> |
   <a href="#ai-classification">AI Classification</a> |
   <a href="#development">Development</a> |
   <a href="CHANGELOG.md">Changelog</a>
@@ -181,6 +182,43 @@ docker compose exec starflow npx prisma db push --skip-generate
 ```
 
 Then you can access Starflow at http://serverip:3000
+
+---
+
+## Browser Extension
+
+Starflow provides a browser extension to manage your GitHub Stars directly on repository pages.
+
+### Features
+
+- **Quick Categorization** - Add repositories to Lists directly from GitHub pages
+- **AI Suggestions** - Get AI classification suggestions with one click
+- **Quick Notes** - Add notes to repositories
+- **Sync Stars** - Quickly sync your latest star data
+
+### Download
+
+Download the latest version from [Releases](https://github.com/GEMILUXVII/starflow/releases):
+- `starflow-extension-x.x.x-chrome.zip` - Chrome / Edge
+- `starflow-extension-x.x.x-firefox.zip` - Firefox
+
+### Installation
+
+**Chrome / Edge:**
+1. Download and **unzip** the zip file to a folder
+2. Open `chrome://extensions/` (or `edge://extensions/`)
+3. Enable **"Developer mode"** (toggle in top right)
+4. Click **"Load unpacked"**
+5. Select the **unzipped folder** (not the zip file)
+
+**Firefox:**
+1. Download the zip file (no need to unzip)
+2. Open `about:addons` → ⚙️ → "Install Add-on From File..."
+3. Select the downloaded **zip file**
+
+### Configuration
+
+After installation, click the Starflow icon in your browser toolbar and enter your Starflow server URL in settings.
 
 ---
 

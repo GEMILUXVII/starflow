@@ -1,0 +1,111 @@
+name: Build and Release Extension
+
+on:
+  push:
+    tags:
+      - 'ext-v*'  # 使用 ext-v0.1.0 这样的 tag 触发
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 0.1.0)'
+        required: false
+        default: ''
+
+jobs:
+  build-extension:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 需要写权限来上传 Release Assets
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: extension/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: extension
+        run: pnpm install
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/ext-v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building extension version: $VERSION"
+
+      - name: Update extension version
+        working-directory: extension
+        run: |
+          # Update version in package.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.version.outputs.version }}\"/" package.json
+          # Update version in wxt.config.ts
+          sed -i "s/version: '.*'/version: '${{ steps.version.outputs.version }}'/" wxt.config.ts
+
+      - name: Build Chrome extension
+        working-directory: extension
+        run: pnpm zip
+
+      - name: Build Firefox extension
+        working-directory: extension
+        run: pnpm zip:firefox
+
+      - name: List built files
+        working-directory: extension/.output
+        run: ls -la *.zip
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Extension v${{ steps.version.outputs.version }}
+          body: |
+            ## Starflow Browser Extension v${{ steps.version.outputs.version }}
+
+            ### Installation
+
+            **Chrome / Edge:**
+            1. Download `starflow-extension-${{ steps.version.outputs.version }}-chrome.zip`
+            2. **Unzip** to a folder (e.g., `starflow-extension/`)
+            3. Open `chrome://extensions/` (or `edge://extensions/`)
+            4. Enable **"Developer mode"** (toggle in top right)
+            5. Click **"Load unpacked"** (加载已解压的扩展程序)
+            6. Select the **unzipped folder** (not the zip file)
+
+            **Firefox:**
+            1. Download `starflow-extension-${{ steps.version.outputs.version }}-firefox.zip`
+            2. Open `about:addons` → ⚙️ → "Install Add-on From File..."
+            3. Select the **zip file** directly (no need to unzip)
+
+            > ⚠️ **Note:** Chrome requires loading from an unzipped folder. Firefox can load zip files directly.
+
+            ### Configuration
+            After installation, click the Starflow icon in your browser toolbar and enter your Starflow server URL in settings.
+          files: |
+            extension/.output/starflow-extension-${{ steps.version.outputs.version }}-chrome.zip
+            extension/.output/starflow-extension-${{ steps.version.outputs.version }}-firefox.zip
+          draft: false
+          prerelease: false
+
+      - name: Upload artifacts (for manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-builds
+          path: |
+            extension/.output/*.zip
+          retention-days: 7
