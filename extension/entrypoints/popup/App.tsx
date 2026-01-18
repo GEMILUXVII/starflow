@@ -67,8 +67,10 @@ function App() {
   const checkAuth = async (url: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`${url}/api/lists`, { credentials: 'include' });
-      setIsAuthenticated(res.ok);
+      // Use background script to check auth (it has proper cookie access)
+      await browser.storage.local.set({ [STORAGE_KEY]: url });
+      const result = await browser.runtime.sendMessage({ type: 'IS_AUTHENTICATED' });
+      setIsAuthenticated(result?.data === true);
     } catch (error) {
       console.error(error);
       setIsAuthenticated(false);
@@ -81,11 +83,9 @@ function App() {
     setSyncing(true);
     setMessage(null);
     try {
-      const res = await fetch(`${apiUrl}/api/repositories/sync`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      if (res.ok) {
+      // Use background script for sync
+      const result = await browser.runtime.sendMessage({ type: 'SYNC_STARS' });
+      if (result?.data) {
         setMessage({ type: 'success', text: 'Sync completed!' });
         setTimeout(() => setMessage(null), 2000);
       } else {

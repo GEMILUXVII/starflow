@@ -7,7 +7,8 @@ export default defineConfig({
     permissions: ['cookies', 'storage'],
     host_permissions: [
       '*://github.com/*',
-      'http://localhost:3000/*'
+      'http://localhost:3000/*',
+      'https://*/*'  // Allow all HTTPS hosts for custom server URLs
     ],
     content_scripts: [
       {
