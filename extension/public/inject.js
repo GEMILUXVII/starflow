@@ -471,7 +471,7 @@
       });
       dropdown.querySelector('#sf-ai-btn')?.addEventListener('click', async () => {
           state.aiLoading = true;
-          renderDropdown();
+          updateAISection(); // Partial update
           try {
               if (state.repo) {
                  const res = await starflowApi.classifyRepo(state.repo.id);
@@ -481,11 +481,11 @@
               }
           } catch(e) { console.error(e); }
           state.aiLoading = false;
-          renderDropdown();
+          updateAISection();
       });
       dropdown.querySelector('#sf-ai-reset')?.addEventListener('click', () => {
           state.aiSuggestion = null;
-          renderDropdown();
+          updateAISection();
       });
       dropdown.querySelectorAll('.sf-list-item').forEach(el => {
           el.addEventListener('click', async (e) => {
@@ -508,7 +508,7 @@
       });
       dropdown.querySelector('#sf-add-note-btn')?.addEventListener('click', () => {
           state.showNote = true;
-          renderDropdown();
+          updateNoteSection(); // Partial update instead of full render
       });
       const textarea = dropdown.querySelector('#sf-note-input');
       if (textarea) {
@@ -533,13 +533,119 @@
   async function saveNote() {
       if (!state.repo) return;
       state.savingNote = true;
-      renderDropdown();
+      updateNoteUI(); // Only update note section, not full dropdown
       try {
           await starflowApi.saveNote(state.repo.id, state.note);
           state.originalNote = state.note;
       } catch(e) { console.error(e); }
       state.savingNote = false;
-      renderDropdown();
+      updateNoteUI();
+  }
+
+  // Partial update for note section to avoid scroll reset
+  function updateNoteUI() {
+      if (!dropdown) return;
+      const saveBtn = dropdown.querySelector('#sf-save-note');
+      const noteHeader = dropdown.querySelector('.sf-note-header > div');
+      if (noteHeader) {
+          const isSaved = state.note === state.originalNote && state.originalNote;
+          if (state.savingNote) {
+              noteHeader.innerHTML = `<button class="sf-link-btn" disabled>Saving...</button>`;
+          } else if (state.note !== state.originalNote) {
+              noteHeader.innerHTML = `<button id="sf-save-note" class="sf-link-btn">Save</button>`;
+              noteHeader.querySelector('#sf-save-note')?.addEventListener('click', saveNote);
+          } else if (isSaved) {
+              noteHeader.innerHTML = `<span class="sf-saved">${Icons.check} Saved</span>`;
+          } else {
+              noteHeader.innerHTML = '';
+          }
+      }
+  }
+
+  // Full update of note section (for Add Note button)
+  function updateNoteSection() {
+      if (!dropdown) return;
+      const noteContainer = dropdown.querySelector('.sf-body > .sf-section:last-child');
+      if (!noteContainer) return;
+
+      const isSaved = state.note === state.originalNote && state.originalNote;
+      const noteHtml = `
+        <div class="sf-note-area">
+          <div class="sf-note-header">
+            <span>${Icons.note} Note</span>
+            <div>
+               ${state.note !== state.originalNote ? `<button id="sf-save-note" class="sf-link-btn" ${state.savingNote ? 'disabled' : ''}>${state.savingNote ? 'Saving...' : 'Save'}</button>` : ''}
+               ${isSaved ? `<span class="sf-saved">${Icons.check} Saved</span>` : ''}
+            </div>
+          </div>
+          <textarea id="sf-note-input" class="sf-note-textarea" rows="3" placeholder="Add a note...">${state.note}</textarea>
+          <div class="sf-note-hint">Cmd+Enter to save</div>
+        </div>`;
+
+      noteContainer.innerHTML = noteHtml;
+
+      // Re-attach events
+      const textarea = noteContainer.querySelector('#sf-note-input');
+      if (textarea) {
+          textarea.addEventListener('input', (e) => {
+              state.note = e.target.value;
+              updateNoteUI();
+          });
+          textarea.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  e.preventDefault();
+                  saveNote();
+              }
+          });
+          textarea.focus();
+      }
+      noteContainer.querySelector('#sf-save-note')?.addEventListener('click', saveNote);
+  }
+
+  // Partial update for AI section to avoid scroll reset
+  function updateAISection() {
+      if (!dropdown) return;
+      const aiContainer = dropdown.querySelector('.sf-body > .sf-section:first-child');
+      if (!aiContainer) return;
+
+      let aiHtml = '';
+      if (!state.aiSuggestion) {
+        aiHtml = `
+          <button id="sf-ai-btn" class="sf-btn" ${state.aiLoading ? 'disabled' : ''}>
+            ${state.aiLoading ? 'Analyzing...' : `${Icons.sparkles} AI Suggest`}
+          </button>`;
+      } else {
+        aiHtml = `
+          <div class="sf-ai-result">
+            <div class="sf-ai-result-header">
+              <span>${Icons.sparkles} ${state.aiSuggestion.listName}</span>
+              <button id="sf-ai-reset" class="sf-link-btn">Reset</button>
+            </div>
+            <div class="sf-ai-result-reason">${state.aiSuggestion.reason}</div>
+          </div>`;
+      }
+
+      aiContainer.innerHTML = aiHtml;
+
+      // Re-attach events
+      aiContainer.querySelector('#sf-ai-btn')?.addEventListener('click', async () => {
+          state.aiLoading = true;
+          updateAISection();
+          try {
+              if (state.repo) {
+                 const res = await starflowApi.classifyRepo(state.repo.id);
+                 if (res.suggestion) {
+                     state.aiSuggestion = { listName: res.suggestion.suggestedListName || res.suggestion.newListName, reason: res.suggestion.reason };
+                 }
+              }
+          } catch(e) { console.error(e); }
+          state.aiLoading = false;
+          updateAISection();
+      });
+      aiContainer.querySelector('#sf-ai-reset')?.addEventListener('click', () => {
+          state.aiSuggestion = null;
+          updateAISection();
+      });
   }
 
   async function fetchData() {
