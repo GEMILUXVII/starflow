@@ -234,7 +234,7 @@
   // ==========================================
   // 1. API Logic (Bundled inline)
   // ==========================================
-  const DEFAULT_API_URL = 'http://localhost:3000';
+  const DEFAULT_API_URL = '';
   const STORAGE_KEY = 'starflow_api_url';
   let starflowBaseUrl = DEFAULT_API_URL;
 

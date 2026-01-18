@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader2, RefreshCw, ExternalLink, LogIn, CheckCircle2, AlertCircle, Settings, Save, X } from 'lucide-react';
 import './style.css';
 
-const DEFAULT_API_URL = 'http://localhost:3000';
+const DEFAULT_API_URL = '';
 const STORAGE_KEY = 'starflow_api_url';
 
 // Starflow Logo SVG (matching main project)
@@ -41,13 +41,19 @@ function App() {
   const loadSettings = async () => {
     try {
       const result = await browser.storage.local.get(STORAGE_KEY);
-      const savedUrl = result[STORAGE_KEY] || DEFAULT_API_URL;
+      const savedUrl = result[STORAGE_KEY] || '';
       setApiUrl(savedUrl);
       setTempApiUrl(savedUrl);
-      checkAuth(savedUrl);
+      if (savedUrl) {
+        checkAuth(savedUrl);
+      } else {
+        // No URL configured, show settings
+        setShowSettings(true);
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Failed to load settings:', error);
-      checkAuth(DEFAULT_API_URL);
+      setLoading(false);
     }
   };
 
@@ -147,7 +153,7 @@ function App() {
               type="text"
               value={tempApiUrl}
               onChange={(e) => setTempApiUrl(e.target.value)}
-              placeholder="http://localhost:3000"
+              placeholder="https://your-server.com"
               className="flex-1 px-3 py-2 text-sm rounded-lg border border-white/10 bg-white/5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50"
             />
             <button
