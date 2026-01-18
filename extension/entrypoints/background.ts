@@ -128,6 +128,18 @@ async function handleMessage(message: ApiMessage) {
       return res.json();
     }
 
+    case 'CREATE_LIST': {
+      const { name, color } = message.payload;
+      const res = await fetch(`${STARFLOW_API}/lists`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name, color })
+      });
+      if (!res.ok) throw new Error('Failed to create list');
+      return res.json();
+    }
+
     default:
       throw new Error('Unknown message type');
   }

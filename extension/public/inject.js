@@ -228,6 +228,66 @@
       align-items: center;
       gap: 4px;
     }
+
+    #starflow-btn-container .sf-error {
+      padding: 12px;
+      text-align: center;
+    }
+    #starflow-btn-container .sf-error-msg {
+      color: var(--fgColor-danger, var(--color-danger-fg, #cf222e));
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    #starflow-btn-container .sf-error-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    #starflow-btn-container .sf-create-list {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--borderColor-muted, var(--color-border-muted, #d8dee4));
+    }
+    #starflow-btn-container .sf-create-input {
+      flex: 1;
+      padding: 4px 8px;
+      font-size: 12px;
+      border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+      border-radius: 6px;
+      background: var(--bgColor-default, var(--color-canvas-default, #fff));
+      color: var(--fgColor-default, var(--color-fg-default, #24292f));
+    }
+    #starflow-btn-container .sf-create-input:focus {
+      outline: none;
+      border-color: var(--focus-outlineColor, var(--color-accent-emphasis, #0969da));
+    }
+    #starflow-btn-container .sf-create-input::placeholder {
+      color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+    }
+    #starflow-btn-container .sf-btn-small {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    #starflow-btn-container .sf-btn-add {
+      padding: 4px 10px;
+      background: var(--button-primary-bgColor-rest, var(--color-btn-primary-bg, #1f883d));
+      color: var(--button-primary-fgColor-rest, var(--color-btn-primary-text, #fff));
+      border-color: var(--button-primary-borderColor-rest, rgba(31,35,40,0.15));
+    }
+    #starflow-btn-container .sf-btn-add:hover {
+      background: var(--button-primary-bgColor-hover, var(--color-btn-primary-hover-bg, #1a7f37));
+    }
+    #starflow-btn-container .sf-btn-add:disabled {
+      opacity: 0.5;
+    }
+
+    #starflow-btn-container .sf-list-item.sf-loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   `;
   document.head.appendChild(style);
 
@@ -325,7 +385,8 @@
     async syncStars() { return sendMessage({ type: 'SYNC_STARS' }); },
     async classifyRepo(repositoryId) { return sendMessage({ type: 'CLASSIFY_REPO', payload: { repositoryId } }); },
     async getNote(repositoryId) { return sendMessage({ type: 'GET_NOTE', payload: { repositoryId } }); },
-    async saveNote(repositoryId, content) { return sendMessage({ type: 'SAVE_NOTE', payload: { repositoryId, content } }); }
+    async saveNote(repositoryId, content) { return sendMessage({ type: 'SAVE_NOTE', payload: { repositoryId, content } }); },
+    async createList(name, color) { return sendMessage({ type: 'CREATE_LIST', payload: { name, color } }); }
   };
 
   // ==========================================
@@ -337,15 +398,21 @@
     check: `<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>`,
     sync: `<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-sync"><path d="M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z"></path></svg>`,
     sparkles: `<svg aria-hidden="true" height="14" width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>`,
-    note: `<svg aria-hidden="true" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" class="octicon"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg>`
+    note: `<svg aria-hidden="true" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" class="octicon"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg>`,
+    plus: `<svg aria-hidden="true" height="12" viewBox="0 0 16 16" version="1.1" width="12"><path d="M7.75 2a.75.75 0 0 1 .75.75V7h4.25a.75.75 0 0 1 0 1.5H8.5v4.25a.75.75 0 0 1-1.5 0V8.5H2.75a.75.75 0 0 1 0-1.5H7V2.75A.75.75 0 0 1 7.75 2Z"></path></svg>`,
+    retry: `<svg aria-hidden="true" height="14" viewBox="0 0 16 16" version="1.1" width="14"><path d="M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z"></path></svg>`
   };
+
+  // Predefined colors for new lists
+  const LIST_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#0ea5e9', '#6366f1', '#a855f7', '#ec4899'];
 
   let container = null;
   let button = null;
   let dropdown = null;
   let state = {
     isOpen: false, loading: false, isAuthenticated: false, lists: [], repo: null, repoName: '',
-    aiLoading: false, aiSuggestion: null, note: '', originalNote: '', showNote: false, savingNote: false
+    aiLoading: false, aiSuggestion: null, note: '', originalNote: '', showNote: false, savingNote: false,
+    error: null, newListName: '', creatingList: false, loadingListId: null
   };
 
   function renderButton() {
@@ -387,6 +454,15 @@
 
     if (state.loading) {
       contentHtml = `<div class="sf-center sf-muted">Loading...</div>`;
+    } else if (state.error) {
+      // Error state with retry button
+      contentHtml = `
+        <div class="sf-error">
+          <p class="sf-error-msg">${state.error}</p>
+          <button id="sf-retry-btn" class="sf-btn sf-error-btn">
+            ${Icons.retry} Retry
+          </button>
+        </div>`;
     } else if (!starflowBaseUrl) {
       // Server URL not configured
       contentHtml = `
@@ -431,14 +507,24 @@
       const listItems = state.lists.map(list => {
         const selected = state.repo?.lists.some(l => l.id === list.id);
         const isSuggested = state.aiSuggestion?.listName === list.name;
+        const isLoading = state.loadingListId === list.id;
         return `
-          <button type="button" class="sf-list-item ${isSuggested ? 'sf-suggested' : ''}" data-id="${list.id}" data-selected="${selected}">
+          <button type="button" class="sf-list-item ${isSuggested ? 'sf-suggested' : ''} ${isLoading ? 'sf-loading' : ''}" data-id="${list.id}" data-selected="${selected}">
             <span class="sf-check">${selected ? Icons.check : ''}</span>
             <span class="sf-color-dot" style="background-color:${list.color}"></span>
             <span class="sf-label">${list.name}</span>
             ${isSuggested ? '<span class="sf-badge">Suggested</span>' : ''}
           </button>`;
       }).join('');
+
+      // Create new list section
+      const createListSection = `
+        <div class="sf-create-list">
+          <input type="text" id="sf-new-list-input" class="sf-create-input" placeholder="New list name..." value="${state.newListName}" />
+          <button id="sf-create-list-btn" class="sf-btn sf-btn-add" ${state.creatingList ? 'disabled' : ''}>
+            ${state.creatingList ? '...' : Icons.plus}
+          </button>
+        </div>`;
 
       // Note Section
       let noteSection = '';
@@ -467,7 +553,7 @@
         <div class="sf-header">Manage Lists</div>
         <div class="sf-body">
            <div class="sf-section">${aiSection}</div>
-           <div class="sf-section sf-list">${listItems}</div>
+           <div class="sf-section sf-list">${listItems}${createListSection}</div>
            <div class="sf-section">${noteSection}</div>
         </div>
         <div class="sf-footer">
@@ -487,9 +573,20 @@
           e.stopPropagation();
       });
 
-      dropdown.querySelector('#sf-sync-btn')?.addEventListener('click', async () => {
-          await starflowApi.syncStars();
+      // Retry button
+      dropdown.querySelector('#sf-retry-btn')?.addEventListener('click', () => {
+          state.error = null;
           fetchData();
+      });
+
+      dropdown.querySelector('#sf-sync-btn')?.addEventListener('click', async () => {
+          try {
+              await starflowApi.syncStars();
+              fetchData();
+          } catch(e) {
+              state.error = 'Failed to sync stars';
+              renderDropdown();
+          }
       });
       dropdown.querySelector('#sf-ai-btn')?.addEventListener('click', async () => {
           state.aiLoading = true;
@@ -514,20 +611,55 @@
               const btn = e.currentTarget;
               const listId = btn.dataset.id;
               const isSelected = btn.dataset.selected === 'true';
-              if (state.repo) {
-                  if (isSelected) {
-                      state.repo.lists = state.repo.lists.filter(l => l.id !== listId);
-                      await starflowApi.removeFromList(state.repo.id, listId);
-                  } else {
-                      const list = state.lists.find(l => l.id === listId);
-                      if (list) state.repo.lists.push(list);
-                      await starflowApi.addToList(state.repo.id, listId);
+              if (state.repo && !state.loadingListId) {
+                  state.loadingListId = listId;
+                  renderDropdown();
+                  try {
+                      if (isSelected) {
+                          state.repo.lists = state.repo.lists.filter(l => l.id !== listId);
+                          await starflowApi.removeFromList(state.repo.id, listId);
+                      } else {
+                          const list = state.lists.find(l => l.id === listId);
+                          if (list) state.repo.lists.push(list);
+                          await starflowApi.addToList(state.repo.id, listId);
+                      }
+                  } catch(e) {
+                      console.error(e);
+                      // Revert on error
+                      if (isSelected) {
+                          const list = state.lists.find(l => l.id === listId);
+                          if (list) state.repo.lists.push(list);
+                      } else {
+                          state.repo.lists = state.repo.lists.filter(l => l.id !== listId);
+                      }
                   }
+                  state.loadingListId = null;
                   renderButton();
                   renderDropdown();
               }
           });
       });
+
+      // Create new list
+      const newListInput = dropdown.querySelector('#sf-new-list-input');
+      if (newListInput) {
+          newListInput.addEventListener('input', (e) => {
+              state.newListName = e.target.value;
+              // No need to update anything else, button is always enabled
+          });
+          newListInput.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' && state.newListName.trim() && !state.creatingList) {
+                  e.preventDefault();
+                  createNewList();
+              }
+          });
+      }
+      dropdown.querySelector('#sf-create-list-btn')?.addEventListener('click', () => {
+          if (state.newListName.trim() && !state.creatingList) {
+              createNewList();
+          }
+      });
+
       dropdown.querySelector('#sf-add-note-btn')?.addEventListener('click', () => {
           state.showNote = true;
           updateNoteSection(); // Partial update instead of full render
@@ -562,6 +694,93 @@
       } catch(e) { console.error(e); }
       state.savingNote = false;
       updateNoteUI();
+  }
+
+  async function createNewList() {
+      if (!state.newListName.trim() || state.creatingList) return;
+      state.creatingList = true;
+
+      // Update button state without full re-render
+      const createBtn = dropdown?.querySelector('#sf-create-list-btn');
+      const input = dropdown?.querySelector('#sf-new-list-input');
+      if (createBtn) {
+          createBtn.disabled = true;
+          createBtn.innerHTML = '...';
+      }
+
+      try {
+          // Pick a random color
+          const color = LIST_COLORS[Math.floor(Math.random() * LIST_COLORS.length)];
+          const newList = await starflowApi.createList(state.newListName.trim(), color);
+          if (newList) {
+              state.lists.push(newList);
+              state.newListName = '';
+
+              // Partial update: add new list item without full re-render
+              const listContainer = dropdown?.querySelector('.sf-section.sf-list');
+              if (listContainer) {
+                  const createListDiv = listContainer.querySelector('.sf-create-list');
+                  if (createListDiv) {
+                      // Insert new list item before create section
+                      const newListHtml = `
+                        <button type="button" class="sf-list-item" data-id="${newList.id}" data-selected="false">
+                          <span class="sf-check"></span>
+                          <span class="sf-color-dot" style="background-color:${newList.color}"></span>
+                          <span class="sf-label">${newList.name}</span>
+                        </button>`;
+                      createListDiv.insertAdjacentHTML('beforebegin', newListHtml);
+
+                      // Attach click event to new item
+                      const newItem = createListDiv.previousElementSibling;
+                      if (newItem) {
+                          newItem.addEventListener('click', async (e) => {
+                              const btn = e.currentTarget;
+                              const listId = btn.dataset.id;
+                              const isSelected = btn.dataset.selected === 'true';
+                              if (state.repo && !state.loadingListId) {
+                                  state.loadingListId = listId;
+                                  btn.classList.add('sf-loading');
+                                  try {
+                                      if (isSelected) {
+                                          state.repo.lists = state.repo.lists.filter(l => l.id !== listId);
+                                          await starflowApi.removeFromList(state.repo.id, listId);
+                                          btn.dataset.selected = 'false';
+                                          btn.querySelector('.sf-check').innerHTML = '';
+                                      } else {
+                                          const list = state.lists.find(l => l.id === listId);
+                                          if (list) state.repo.lists.push(list);
+                                          await starflowApi.addToList(state.repo.id, listId);
+                                          btn.dataset.selected = 'true';
+                                          btn.querySelector('.sf-check').innerHTML = Icons.check;
+                                      }
+                                      renderButton();
+                                  } catch(err) {
+                                      console.error(err);
+                                  }
+                                  state.loadingListId = null;
+                                  btn.classList.remove('sf-loading');
+                              }
+                          });
+                      }
+                  }
+
+                  // Clear input and restore button
+                  if (input) input.value = '';
+                  if (createBtn) {
+                      createBtn.disabled = false;
+                      createBtn.innerHTML = Icons.plus;
+                  }
+              }
+          }
+      } catch(e) {
+          console.error(e);
+          // Restore button on error
+          if (createBtn) {
+              createBtn.disabled = false;
+              createBtn.innerHTML = Icons.plus;
+          }
+      }
+      state.creatingList = false;
   }
 
   // Partial update for note section to avoid scroll reset
@@ -672,6 +891,7 @@
 
   async function fetchData() {
       state.loading = true;
+      state.error = null;
       renderDropdown();
       try {
           state.isAuthenticated = await starflowApi.isAuthenticated();
@@ -680,7 +900,7 @@
                   starflowApi.getLists(),
                   starflowApi.getRepoStatus(state.repoName)
               ]);
-              state.lists = lists;
+              state.lists = lists || [];
               state.repo = repo;
               renderButton();
               if (repo) {
@@ -691,7 +911,10 @@
                   } catch(e) {}
               }
           }
-      } catch(e) { console.error(e); }
+      } catch(e) {
+          console.error(e);
+          state.error = e.message || 'Failed to load data';
+      }
       state.loading = false;
       if (state.isOpen) renderDropdown();
   }
@@ -748,6 +971,10 @@
       state.note = '';
       state.originalNote = '';
       state.showNote = false;
+      state.error = null;
+      state.newListName = '';
+      state.creatingList = false;
+      state.loadingListId = null;
     }
 
     // Try to mount if not already mounted

@@ -5,6 +5,15 @@ import './style.css';
 const DEFAULT_API_URL = '';
 const STORAGE_KEY = 'starflow_api_url';
 
+// Get version from manifest
+const getVersion = () => {
+  try {
+    return browser.runtime.getManifest().version;
+  } catch {
+    return '0.1.0';
+  }
+};
+
 // Starflow Logo SVG (matching main project)
 const Logo = () => (
   <svg viewBox="20 34 216 216" className="w-10 h-10">
@@ -247,7 +256,7 @@ function App() {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-white/10 text-center">
         <span className="text-[10px] text-white/30">
-          Starflow Extension v0.1.0
+          Starflow Extension v{getVersion()}
         </span>
       </div>
     </div>

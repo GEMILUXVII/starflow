@@ -20,7 +20,7 @@ export default defineConfig({
     ],
     name: 'Starflow Extension',
     description: 'Manage your GitHub stars with Starflow',
-    version: '0.1.0',
+    version: '0.2.0',
   },
   runner: {
     startUrls: ['https://github.com/'],
