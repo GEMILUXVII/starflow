@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function Footer() {
+  const t = useTranslations("footer");
   const currentYear = new Date().getFullYear();
 
   return (
@@ -8,8 +12,8 @@ export function Footer() {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
-            <span>© {currentYear} Starflow.</span>
-            <span>All rights reserved.</span>
+            <span>{t("copyright", { year: currentYear })}</span>
+            <span>{t("allRightsReserved")}</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -17,13 +21,13 @@ export function Footer() {
               href="/privacy"
               className="hover:text-foreground transition-colors"
             >
-              隐私政策
+              {t("privacy")}
             </Link>
             <Link
               href="/terms"
               className="hover:text-foreground transition-colors"
             >
-              服务条款
+              {t("terms")}
             </Link>
             <a
               href="https://github.com/GEMILUXVII/starflow"
