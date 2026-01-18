@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2025-01-18
+
+### Improved / 改进
+
+- Locale-aware AI classification prompts (Chinese users get Chinese category names, English users get English)
+- AI 分类根据用户语言返回对应语言的分类名称
+- AI batch classification creates lists in user's language
+- AI 批量分类根据用户语言创建对应语言的 List 名称
+
+### Internationalized / 国际化
+
+- AI classification dialogs (single and batch)
+- AI 分类对话框（单个和批量）
+- Notes dialog
+- 笔记对话框
+- Repository card dropdown menu
+- 仓库卡片下拉菜单
+- Confirm dialogs
+- 确认对话框
+
+---
+
+## [1.3.0] - 2025-01-18
+
+### Added / 新增
+
+- Full internationalization (i18n) support with Chinese and English
+- 完整的国际化支持，支持中文和英文切换
+- Language toggle in header for easy switching
+- 顶部导航栏语言切换按钮
+
+### Internationalized / 国际化
+
+- Home page, header, sidebar, footer
+- 首页、顶部导航、侧边栏、页脚
+- Stars page with all filters and batch actions
+- Stars 页面（包含筛选和批量操作）
+- Settings page with all configuration options
+- 设置页面（所有配置选项）
+- Filter popover component
+- 筛选弹出框组件
+- Privacy policy and Terms of service pages
+- 隐私政策和服务条款页面
+
+---
+
 ## [1.2.7] - 2025-01-16
 
 ### Fixed / 修复
@@ -190,6 +236,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.3.1]: https://github.com/GEMILUXVII/starflow/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/GEMILUXVII/starflow/compare/v1.2.7...v1.3.0
 [1.2.7]: https://github.com/GEMILUXVII/starflow/compare/v1.2.6...v1.2.7
 [1.2.6]: https://github.com/GEMILUXVII/starflow/compare/v1.2.5...v1.2.6
 [1.2.5]: https://github.com/GEMILUXVII/starflow/compare/v1.2.4...v1.2.5

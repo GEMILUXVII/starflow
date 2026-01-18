@@ -860,7 +860,7 @@ export function SettingsClient({ user }: { user: User }) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("version")}</span>
-                <span>1.2.7</span>
+                <span>1.3.1</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("license")}</span>
