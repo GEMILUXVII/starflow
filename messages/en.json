@@ -1,0 +1,180 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "apply": "Apply",
+    "clear": "Clear",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and"
+  },
+  "home": {
+    "title": "Starflow - GitHub Stars Manager",
+    "description": "Elegantly manage your GitHub Stars, keep your favorites organized",
+    "tagline": "A simple and efficient GitHub Stars management tool",
+    "features": "Categorize · Quick Search · Bi-directional Sync · Notes",
+    "loginWithGithub": "Login with GitHub",
+    "footer": "Open Source · Self-hosted · Your Data, Your Control",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "header": {
+    "searchPlaceholder": "Search repositories... (Press / to focus)",
+    "lastSync": "Last sync: {time}",
+    "syncing": "Syncing...",
+    "sync": "Sync",
+    "stats": "Stats",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "sidebar": {
+    "allStars": "All Stars",
+    "uncategorized": "Uncategorized",
+    "lists": "Lists",
+    "languages": "Languages",
+    "newList": "New List"
+  },
+  "stars": {
+    "title": "All Stars",
+    "noRepos": "No repositories",
+    "syncGithub": "Sync GitHub Stars",
+    "loadMore": "Load More ({current} / {total})",
+    "loadedAll": "All {total} repositories loaded",
+    "batchActions": "Batch Actions",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selected": "{count} selected",
+    "exitSelect": "Exit Selection",
+    "addToList": "Add to List",
+    "unstar": "Unstar",
+    "batchUnstar": "Unstar ({count})",
+    "oneClickOrganize": "Auto Organize ({count})",
+    "sortBy": {
+      "starredAt": "Starred Date",
+      "stargazersCount": "Stars Count",
+      "pushedAt": "Recently Updated",
+      "name": "Name"
+    }
+  },
+  "repository": {
+    "stars": "stars",
+    "forks": "forks",
+    "archived": "Archived",
+    "viewOnGithub": "View on GitHub",
+    "viewReadme": "View README",
+    "addNote": "Add Note",
+    "aiClassify": "AI Classify",
+    "removeFromList": "Remove from {list}",
+    "addToList": "Add to List"
+  },
+  "list": {
+    "create": "New List",
+    "edit": "Edit List",
+    "name": "Name",
+    "namePlaceholder": "Enter list name",
+    "color": "Color",
+    "deleteConfirm": "Are you sure you want to delete this list? Repositories in this list will not be deleted."
+  },
+  "note": {
+    "title": "Notes",
+    "placeholder": "Write your notes...",
+    "save": "Save Note",
+    "empty": "No notes yet"
+  },
+  "readme": {
+    "title": "README",
+    "loading": "Loading README...",
+    "error": "Failed to load README",
+    "openInGithub": "Open in GitHub"
+  },
+  "ai": {
+    "classifying": "AI is analyzing...",
+    "suggestion": "AI Suggestion",
+    "suggestedList": "Suggested list",
+    "newListSuggestion": "Suggest creating new list",
+    "confidence": "Confidence",
+    "reason": "Reason",
+    "apply": "Apply Suggestion",
+    "createAndApply": "Create & Apply",
+    "error": "AI classification failed",
+    "batchClassify": "Batch AI Classify",
+    "batchProgress": "Progress: {current} / {total}",
+    "batchComplete": "Classification complete",
+    "batchError": "Some classifications failed"
+  },
+  "filter": {
+    "title": "Filters",
+    "minStars": "Min Stars",
+    "maxStars": "Max Stars",
+    "hasNotes": "Has Notes",
+    "archived": "Archive Status",
+    "archivedOnly": "Archived Only",
+    "notArchived": "Not Archived",
+    "archivedAll": "All",
+    "reset": "Reset Filters"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "preferences": "Preferences",
+    "defaultSort": "Default Sort",
+    "itemsPerPage": "Items Per Page",
+    "compactView": "Compact View",
+    "aiConfig": "AI Configuration",
+    "aiProvider": "AI Provider",
+    "apiEndpoint": "API Endpoint",
+    "apiKey": "API Key",
+    "model": "Model",
+    "enabled": "Enabled",
+    "testConnection": "Test Connection",
+    "connectionSuccess": "Connection successful",
+    "connectionFailed": "Connection failed",
+    "saveSuccess": "Saved successfully",
+    "saveFailed": "Failed to save"
+  },
+  "stats": {
+    "title": "Statistics",
+    "totalStars": "Total Stars",
+    "totalLists": "Total Lists",
+    "categorized": "Categorized",
+    "uncategorized": "Uncategorized",
+    "topLanguages": "Top Languages",
+    "recentActivity": "Recent Activity",
+    "starsOverTime": "Stars Over Time"
+  },
+  "confirm": {
+    "unstar": {
+      "title": "Unstar",
+      "description": "Are you sure you want to unstar this repository? This will be synced to GitHub."
+    },
+    "batchUnstar": {
+      "title": "Batch Unstar",
+      "description": "Are you sure you want to unstar {count} repositories? This will be synced to GitHub."
+    },
+    "deleteList": {
+      "title": "Delete List",
+      "description": "Are you sure you want to delete this list? Repositories in this list will not be deleted."
+    }
+  },
+  "error": {
+    "generic": "An error occurred, please try again",
+    "network": "Network error, please check your connection",
+    "unauthorized": "Unauthorized, please log in again",
+    "notFound": "Not found"
+  }
+}

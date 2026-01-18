@@ -1,0 +1,180 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "search": "搜索",
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "reset": "重置",
+    "apply": "应用",
+    "clear": "清除",
+    "all": "全部",
+    "none": "无",
+    "yes": "是",
+    "no": "否",
+    "or": "或",
+    "and": "和"
+  },
+  "home": {
+    "title": "Starflow - GitHub Stars 管理工具",
+    "description": "优雅地管理你的 GitHub Stars，让收藏更有条理",
+    "tagline": "一个简洁高效的 GitHub Stars 管理工具",
+    "features": "分类管理 · 快速搜索 · 双向同步 · 笔记备注",
+    "loginWithGithub": "使用 GitHub 登录",
+    "footer": "开源项目 · 自托管 · 数据由你掌控",
+    "privacy": "隐私政策",
+    "terms": "服务条款"
+  },
+  "header": {
+    "searchPlaceholder": "搜索仓库... (按 / 聚焦)",
+    "lastSync": "上次同步：{time}",
+    "syncing": "同步中...",
+    "sync": "同步",
+    "stats": "统计",
+    "settings": "设置",
+    "logout": "退出登录"
+  },
+  "sidebar": {
+    "allStars": "全部 Stars",
+    "uncategorized": "未分类",
+    "lists": "Lists",
+    "languages": "语言",
+    "newList": "新建 List"
+  },
+  "stars": {
+    "title": "全部 Stars",
+    "noRepos": "暂无仓库",
+    "syncGithub": "同步 GitHub Stars",
+    "loadMore": "加载更多 ({current} / {total})",
+    "loadedAll": "已加载全部 {total} 个仓库",
+    "batchActions": "批量操作",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "selected": "已选择 {count} 项",
+    "exitSelect": "退出选择",
+    "addToList": "添加到 List",
+    "unstar": "取消 Star",
+    "batchUnstar": "取消 Star ({count})",
+    "oneClickOrganize": "一键整理 ({count})",
+    "sortBy": {
+      "starredAt": "Star 时间",
+      "stargazersCount": "Stars 数量",
+      "pushedAt": "最近更新",
+      "name": "名称"
+    }
+  },
+  "repository": {
+    "stars": "stars",
+    "forks": "forks",
+    "archived": "已归档",
+    "viewOnGithub": "在 GitHub 中查看",
+    "viewReadme": "查看 README",
+    "addNote": "添加笔记",
+    "aiClassify": "AI 分类",
+    "removeFromList": "从 {list} 移除",
+    "addToList": "添加到 List"
+  },
+  "list": {
+    "create": "新建 List",
+    "edit": "编辑 List",
+    "name": "名称",
+    "namePlaceholder": "输入 List 名称",
+    "color": "颜色",
+    "deleteConfirm": "确定要删除这个 List 吗？List 中的仓库不会被删除。"
+  },
+  "note": {
+    "title": "笔记",
+    "placeholder": "写下你的笔记...",
+    "save": "保存笔记",
+    "empty": "暂无笔记"
+  },
+  "readme": {
+    "title": "README",
+    "loading": "加载 README...",
+    "error": "无法加载 README",
+    "openInGithub": "在 GitHub 中打开"
+  },
+  "ai": {
+    "classifying": "AI 正在分析...",
+    "suggestion": "AI 建议",
+    "suggestedList": "建议分类到",
+    "newListSuggestion": "建议创建新 List",
+    "confidence": "置信度",
+    "reason": "原因",
+    "apply": "应用建议",
+    "createAndApply": "创建并应用",
+    "error": "AI 分类失败",
+    "batchClassify": "批量 AI 分类",
+    "batchProgress": "进度：{current} / {total}",
+    "batchComplete": "分类完成",
+    "batchError": "部分分类失败"
+  },
+  "filter": {
+    "title": "筛选",
+    "minStars": "最少 Stars",
+    "maxStars": "最多 Stars",
+    "hasNotes": "有笔记",
+    "archived": "归档状态",
+    "archivedOnly": "仅归档",
+    "notArchived": "仅未归档",
+    "archivedAll": "全部",
+    "reset": "重置筛选"
+  },
+  "settings": {
+    "title": "设置",
+    "profile": "个人资料",
+    "preferences": "偏好设置",
+    "defaultSort": "默认排序",
+    "itemsPerPage": "每页数量",
+    "compactView": "紧凑视图",
+    "aiConfig": "AI 配置",
+    "aiProvider": "AI 提供商",
+    "apiEndpoint": "API 端点",
+    "apiKey": "API 密钥",
+    "model": "模型",
+    "enabled": "启用",
+    "testConnection": "测试连接",
+    "connectionSuccess": "连接成功",
+    "connectionFailed": "连接失败",
+    "saveSuccess": "保存成功",
+    "saveFailed": "保存失败"
+  },
+  "stats": {
+    "title": "统计",
+    "totalStars": "总 Stars 数",
+    "totalLists": "总 Lists 数",
+    "categorized": "已分类",
+    "uncategorized": "未分类",
+    "topLanguages": "热门语言",
+    "recentActivity": "最近活动",
+    "starsOverTime": "Stars 趋势"
+  },
+  "confirm": {
+    "unstar": {
+      "title": "取消 Star",
+      "description": "确定要取消 Star 吗？此操作将同步到 GitHub。"
+    },
+    "batchUnstar": {
+      "title": "批量取消 Star",
+      "description": "确定要取消 {count} 个仓库的 Star 吗？此操作将同步到 GitHub。"
+    },
+    "deleteList": {
+      "title": "删除 List",
+      "description": "确定要删除这个 List 吗？List 中的仓库不会被删除。"
+    }
+  },
+  "error": {
+    "generic": "发生错误，请重试",
+    "network": "网络错误，请检查连接",
+    "unauthorized": "未授权，请重新登录",
+    "notFound": "未找到"
+  }
+}

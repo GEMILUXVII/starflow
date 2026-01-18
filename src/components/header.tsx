@@ -1,10 +1,10 @@
 "use client";
 
-import { forwardRef } from "react";
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { zhCN, enUS } from "date-fns/locale";
+import { useLocale, useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { RefreshCw, Search, LogOut, Settings, BarChart3 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import { Logo } from "@/components/logo";
 
 interface HeaderProps {
@@ -35,6 +36,10 @@ interface HeaderProps {
 
 export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchInputRef }: HeaderProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("header");
+
+  const dateLocale = locale === "zh" ? zhCN : enUS;
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -54,7 +59,7 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
             <Input
               ref={searchInputRef}
               type="search"
-              placeholder="搜索仓库... (按 / 聚焦)"
+              placeholder={t("searchPlaceholder")}
               className="pl-8"
               onChange={(e) => onSearch?.(e.target.value)}
             />
@@ -65,7 +70,7 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
           {/* Last Sync Time */}
           {lastSyncAt && (
             <span className="text-xs text-muted-foreground hidden sm:inline">
-              上次同步：{formatDistanceToNow(new Date(lastSyncAt), { addSuffix: true, locale: zhCN })}
+              {t("lastSync", { time: formatDistanceToNow(new Date(lastSyncAt), { addSuffix: true, locale: dateLocale }) })}
             </span>
           )}
 
@@ -77,8 +82,11 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
             disabled={isSyncing}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-            {isSyncing ? "同步中..." : "同步"}
+            {isSyncing ? t("syncing") : t("sync")}
           </Button>
+
+          {/* Language Toggle */}
+          <LanguageToggle />
 
           {/* Theme Toggle */}
           <ThemeToggle />
@@ -107,11 +115,11 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/stats")}>
                 <BarChart3 className="mr-2 h-4 w-4" />
-                <span>统计</span>
+                <span>{t("stats")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/settings")}>
                 <Settings className="mr-2 h-4 w-4" />
-                <span>设置</span>
+                <span>{t("settings")}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -119,7 +127,7 @@ export function Header({ user, onSync, isSyncing, onSearch, lastSyncAt, searchIn
                 onClick={() => signOut({ callbackUrl: "/" })}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>退出登录</span>
+                <span>{t("logout")}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

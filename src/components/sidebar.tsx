@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,7 +46,7 @@ export function Sidebar({
   onCreateList,
   onEditList,
 }: SidebarProps) {
-  const pathname = usePathname();
+  const t = useTranslations("sidebar");
   const [listsExpanded, setListsExpanded] = useState(true);
   const [languagesExpanded, setLanguagesExpanded] = useState(true);
 
@@ -62,7 +62,7 @@ export function Sidebar({
                 className="w-full justify-start"
               >
                 <Star className="mr-2 h-4 w-4" />
-                全部 Stars
+                {t("allStars")}
                 <Badge variant="secondary" className="ml-auto">
                   {totalStars}
                 </Badge>
@@ -74,7 +74,7 @@ export function Sidebar({
                 className="w-full justify-start"
               >
                 <FolderOpen className="mr-2 h-4 w-4" />
-                未分类
+                {t("uncategorized")}
                 <Badge variant="secondary" className="ml-auto">
                   {uncategorizedCount}
                 </Badge>
@@ -93,7 +93,7 @@ export function Sidebar({
               ) : (
                 <ChevronRight className="h-4 w-4" />
               )}
-              Lists
+              {t("lists")}
             </button>
             {listsExpanded && (
               <div className="mt-2 space-y-1">
@@ -134,7 +134,7 @@ export function Sidebar({
                   onClick={onCreateList}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  新建 List
+                  {t("newList")}
                 </Button>
               </div>
             )}
@@ -151,7 +151,7 @@ export function Sidebar({
               ) : (
                 <ChevronRight className="h-4 w-4" />
               )}
-              语言
+              {t("languages")}
             </button>
             {languagesExpanded && (
               <div className="mt-2 space-y-1">

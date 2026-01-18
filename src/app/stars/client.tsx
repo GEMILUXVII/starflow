@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { RepositoryCard } from "@/components/repository-card";
@@ -76,6 +77,8 @@ interface Stats {
 
 export function StarsClient({ user }: { user: User }) {
   const searchParams = useSearchParams();
+  const t = useTranslations("stars");
+  const tConfirm = useTranslations("confirm");
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -290,8 +293,8 @@ export function StarsClient({ user }: { user: User }) {
   const handleUnstar = async (repoId: string) => {
     setConfirmDialog({
       open: true,
-      title: "取消 Star",
-      description: "确定要取消 Star 吗？此操作将同步到 GitHub。",
+      title: tConfirm("unstar.title"),
+      description: tConfirm("unstar.description"),
       onConfirm: async () => {
         setConfirmDialog((prev) => ({ ...prev, open: false }));
         try {
@@ -330,8 +333,8 @@ export function StarsClient({ user }: { user: User }) {
     if (selectedRepos.size === 0) return;
     setConfirmDialog({
       open: true,
-      title: "批量取消 Star",
-      description: `确定要取消 ${selectedRepos.size} 个仓库的 Star 吗？此操作将同步到 GitHub。`,
+      title: tConfirm("batchUnstar.title"),
+      description: tConfirm("batchUnstar.description", { count: selectedRepos.size }),
       onConfirm: async () => {
         setConfirmDialog((prev) => ({ ...prev, open: false }));
         try {
@@ -377,11 +380,11 @@ export function StarsClient({ user }: { user: User }) {
       if (res.ok) {
         setAiSuggestion(data.suggestion);
       } else {
-        setAiError(data.error || "AI 分类失败");
+        setAiError(data.error || "AI classification failed");
       }
     } catch (error) {
       console.error("AI classify error:", error);
-      setAiError("AI 分类请求失败");
+      setAiError("AI classification request failed");
     } finally {
       setAiLoading(false);
     }
@@ -543,10 +546,10 @@ export function StarsClient({ user }: { user: User }) {
               <>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={handleSelectAll}>
-                    {selectedRepos.size === repositories.length ? "取消全选" : "全选"}
+                    {selectedRepos.size === repositories.length ? t("deselectAll") : t("selectAll")}
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    已选择 {selectedRepos.size} 项
+                    {t("selected", { count: selectedRepos.size })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -559,7 +562,7 @@ export function StarsClient({ user }: { user: User }) {
                           disabled={selectedRepos.size === 0}
                         >
                           <FolderPlus className="h-4 w-4 mr-1" />
-                          添加到 List
+                          {t("addToList")}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
@@ -584,10 +587,10 @@ export function StarsClient({ user }: { user: User }) {
                     onClick={handleBatchUnstar}
                     disabled={selectedRepos.size === 0}
                   >
-                    取消 Star ({selectedRepos.size})
+                    {t("batchUnstar", { count: selectedRepos.size })}
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleExitSelectMode}>
-                    退出选择
+                    {t("exitSelect")}
                   </Button>
                 </div>
               </>
@@ -598,7 +601,7 @@ export function StarsClient({ user }: { user: User }) {
                     ? stats?.lists.find((l) => l.id === selectedList)?.name
                     : selectedLanguage
                       ? selectedLanguage
-                      : "全部 Stars"}
+                      : t("title")}
                   {total > 0 && (
                     <span className="text-sm font-normal text-muted-foreground ml-2">
                       ({repositories.length} / {total})
@@ -613,7 +616,7 @@ export function StarsClient({ user }: { user: User }) {
                       onClick={handleOpenBatchClassify}
                     >
                       <Sparkles className="mr-1 h-4 w-4" />
-                      一键整理 ({stats.uncategorizedCount})
+                      {t("oneClickOrganize", { count: stats.uncategorizedCount })}
                     </Button>
                   )}
                   <Button
@@ -622,7 +625,7 @@ export function StarsClient({ user }: { user: User }) {
                     onClick={() => setSelectMode(true)}
                     disabled={repositories.length === 0}
                   >
-                    批量操作
+                    {t("batchActions")}
                   </Button>
                   <FilterPopover filters={filters} onFiltersChange={setFilters} />
                   <Select value={sortBy} onValueChange={setSortBy}>
@@ -630,10 +633,10 @@ export function StarsClient({ user }: { user: User }) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="starredAt">Star 时间</SelectItem>
-                      <SelectItem value="stargazersCount">Stars 数量</SelectItem>
-                      <SelectItem value="pushedAt">最近更新</SelectItem>
-                      <SelectItem value="name">名称</SelectItem>
+                      <SelectItem value="starredAt">{t("sortBy.starredAt")}</SelectItem>
+                      <SelectItem value="stargazersCount">{t("sortBy.stargazersCount")}</SelectItem>
+                      <SelectItem value="pushedAt">{t("sortBy.pushedAt")}</SelectItem>
+                      <SelectItem value="name">{t("sortBy.name")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -650,9 +653,9 @@ export function StarsClient({ user }: { user: User }) {
             </div>
           ) : repositories.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <p>暂无仓库</p>
+              <p>{t("noRepos")}</p>
               <Button variant="outline" className="mt-4" onClick={handleSync}>
-                同步 GitHub Stars
+                {t("syncGithub")}
               </Button>
             </div>
           ) : (
@@ -689,10 +692,10 @@ export function StarsClient({ user }: { user: User }) {
                       {loadingMore ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          加载中...
+                          {t("noRepos")}
                         </>
                       ) : (
-                        `加载更多 (${repositories.length} / ${total})`
+                        t("loadMore", { current: repositories.length, total })
                       )}
                     </Button>
                   </div>
@@ -700,7 +703,7 @@ export function StarsClient({ user }: { user: User }) {
 
                 {!hasMore && repositories.length > 0 && (
                   <div className="text-center py-4 text-muted-foreground text-sm">
-                    已加载全部 {total} 个仓库
+                    {t("loadedAll", { total })}
                   </div>
                 )}
               </>
