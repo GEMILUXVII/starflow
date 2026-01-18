@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,7 @@ export function AiClassifyDialog({
   onCreateAndApply,
 }: AiClassifyDialogProps) {
   const [applying, setApplying] = useState(false);
+  const t = useTranslations("ai");
 
   const handleApply = async () => {
     if (!suggestion) return;
@@ -69,7 +71,7 @@ export function AiClassifyDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
-            AI 分类建议
+            {t("suggestion")}
           </DialogTitle>
           <DialogDescription className="truncate">
             {repositoryName}
@@ -80,7 +82,7 @@ export function AiClassifyDialog({
           {loading ? (
             <div className="flex flex-col items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <p className="mt-2 text-sm text-muted-foreground">AI 正在分析...</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t("classifying")}</p>
             </div>
           ) : error ? (
             <div className="text-center py-4">
@@ -94,7 +96,7 @@ export function AiClassifyDialog({
                   <div className="flex items-center gap-2">
                     <Plus className="h-5 w-5 text-primary" />
                     <div>
-                      <p className="font-medium">建议创建新 List</p>
+                      <p className="font-medium">{t("newListSuggestion")}</p>
                       <p className="text-lg text-primary">{suggestion.newListName}</p>
                     </div>
                   </div>
@@ -102,24 +104,24 @@ export function AiClassifyDialog({
                   <div className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-green-600" />
                     <div>
-                      <p className="font-medium">建议添加到</p>
+                      <p className="font-medium">{t("suggestedList")}</p>
                       <p className="text-lg text-primary">{suggestion.suggestedListName}</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-muted-foreground">未找到合适的分类</p>
+                  <p className="text-muted-foreground">{t("noSuitableCategory")}</p>
                 )}
               </div>
 
               {/* 置信度 */}
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">置信度</span>
+                <span className="text-muted-foreground">{t("confidence")}</span>
                 <span className={confidenceColor}>{confidencePercent}%</span>
               </div>
 
               {/* 理由 */}
               <div>
-                <p className="text-sm text-muted-foreground mb-1">分类理由</p>
+                <p className="text-sm text-muted-foreground mb-1">{t("reason")}</p>
                 <p className="text-sm">{suggestion.reason}</p>
               </div>
             </div>
@@ -128,19 +130,19 @@ export function AiClassifyDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            取消
+            {t("cancel")}
           </Button>
           {suggestion && (suggestion.suggestedListId || suggestion.suggestNewList) && (
             <Button onClick={handleApply} disabled={applying}>
               {applying ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  应用中...
+                  {t("applying")}
                 </>
               ) : suggestion.suggestNewList ? (
-                "创建并应用"
+                t("createAndApply")
               ) : (
-                "应用分类"
+                t("apply")
               )}
             </Button>
           )}

@@ -24,9 +24,13 @@ export interface ClassifyResult {
   reason: string;
 }
 
+export interface ClassifyOptions {
+  locale?: string; // 用户语言偏好 'zh' | 'en'
+}
+
 export interface AIProvider {
   name: string;
-  classify(repo: RepoInfo, lists: ListInfo[]): Promise<ClassifyResult>;
+  classify(repo: RepoInfo, lists: ListInfo[], options?: ClassifyOptions): Promise<ClassifyResult>;
   testConnection(): Promise<boolean>;
 }
 

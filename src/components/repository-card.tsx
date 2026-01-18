@@ -1,7 +1,8 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { zhCN, enUS } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,8 @@ export function RepositoryCard({
   onToggleSelect,
   compact,
 }: RepositoryCardProps) {
+  const t = useTranslations("repository");
+  const locale = useLocale();
   const repoLists = repository.lists || [];
   const availableLists = lists.filter(
     (l) => !repoLists.some((rl) => rl.id === l.id)
@@ -169,10 +172,11 @@ export function RepositoryCard({
               </div>
               {repository.pushedAt && (
                 <span>
-                  更新于{" "}
-                  {formatDistanceToNow(new Date(repository.pushedAt), {
-                    addSuffix: true,
-                    locale: zhCN,
+                  {t("updatedAgo", {
+                    time: formatDistanceToNow(new Date(repository.pushedAt), {
+                      addSuffix: false,
+                      locale: locale === "zh" ? zhCN : enUS,
+                    })
                   })}
                 </span>
               )}
@@ -200,7 +204,7 @@ export function RepositoryCard({
                           e.stopPropagation();
                           onRemoveFromList?.(repository.id, list.id);
                         }}
-                        title="从此 List 移除"
+                        title={t("removeFromThisList")}
                       >
                         ×
                       </span>
@@ -227,22 +231,22 @@ export function RepositoryCard({
                   rel="noopener noreferrer"
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  在 GitHub 打开
+                  {t("viewOnGithub")}
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onOpenReadme?.(repository.id)}>
                 <BookOpen className="mr-2 h-4 w-4" />
-                查看 README
+                {t("viewReadme")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onOpenNote?.(repository.id)}>
                 <FileText className="mr-2 h-4 w-4" />
-                笔记
+                {t("note")}
               </DropdownMenuItem>
               {availableLists.length > 0 && (
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <FolderPlus className="mr-2 h-4 w-4" />
-                    添加到 List
+                    {t("addToList")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     {availableLists.map((list) => (
@@ -263,7 +267,7 @@ export function RepositoryCard({
               {aiEnabled && (
                 <DropdownMenuItem onClick={() => onAiClassify?.(repository.id)}>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  AI 分类
+                  {t("aiClassify")}
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -272,7 +276,7 @@ export function RepositoryCard({
                 onClick={() => onUnstar?.(repository.id)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                取消 Star
+                {t("unstar")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

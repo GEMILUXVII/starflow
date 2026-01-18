@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,9 @@ export function NoteDialog({
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const t = useTranslations("note");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
 
   // Load note when dialog opens
   useEffect(() => {
@@ -131,7 +135,7 @@ export function NoteDialog({
       <DialogContent className="sm:max-w-[600px] h-[70vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between pr-8">
-            <DialogTitle>笔记</DialogTitle>
+            <DialogTitle>{t("title")}</DialogTitle>
             {!loading && originalContent && (
               <Button
                 variant="ghost"
@@ -141,12 +145,12 @@ export function NoteDialog({
                 {isEditing ? (
                   <>
                     <Eye className="h-4 w-4 mr-1" />
-                    预览
+                    {t("preview")}
                   </>
                 ) : (
                   <>
                     <Pencil className="h-4 w-4 mr-1" />
-                    编辑
+                    {tCommon("edit")}
                   </>
                 )}
               </Button>
@@ -166,12 +170,12 @@ export function NoteDialog({
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="添加你的笔记... 支持 Markdown 格式"
+              placeholder={t("placeholder")}
               className="flex-1 resize-none"
             />
             {lastSaved && (
               <p className="text-xs text-muted-foreground flex-shrink-0">
-                上次保存：{new Date(lastSaved).toLocaleString("zh-CN")}
+                {t("lastSaved", { time: new Date(lastSaved).toLocaleString(locale === "zh" ? "zh-CN" : "en-US") })}
               </p>
             )}
           </div>
@@ -184,7 +188,7 @@ export function NoteDialog({
             </article>
             {lastSaved && (
               <p className="text-xs text-muted-foreground mt-4">
-                上次保存：{new Date(lastSaved).toLocaleString("zh-CN")}
+                {t("lastSaved", { time: new Date(lastSaved).toLocaleString(locale === "zh" ? "zh-CN" : "en-US") })}
               </p>
             )}
           </ScrollArea>
@@ -201,7 +205,7 @@ export function NoteDialog({
                   disabled={saving}
                   className="sm:mr-auto"
                 >
-                  删除
+                  {tCommon("delete")}
                 </Button>
               )}
               <Button
@@ -210,16 +214,16 @@ export function NoteDialog({
                 onClick={handleCancel}
                 disabled={saving}
               >
-                取消
+                {tCommon("cancel")}
               </Button>
               <Button onClick={handleSave} disabled={saving || loading}>
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    保存中...
+                    {t("saving")}
                   </>
                 ) : (
-                  "保存"
+                  tCommon("save")
                 )}
               </Button>
             </>
@@ -229,7 +233,7 @@ export function NoteDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              关闭
+              {tCommon("close")}
             </Button>
           )}
         </DialogFooter>
@@ -238,8 +242,8 @@ export function NoteDialog({
       <ConfirmDialog
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-        title="删除笔记"
-        description="确定要删除这条笔记吗？此操作不可恢复。"
+        title={t("deleteTitle")}
+        description={t("deleteDescription")}
         onConfirm={confirmDelete}
         variant="destructive"
       />

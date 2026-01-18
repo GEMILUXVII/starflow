@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAIProvider } from "@/lib/ai";
@@ -99,6 +100,10 @@ export async function POST(request: Request) {
       model: config.model,
     });
 
+    // 获取用户语言设置
+    const cookieStore = await cookies();
+    const locale = cookieStore.get("locale")?.value || "zh";
+
     const result = await provider.classify(
       {
         id: repo.id,
@@ -110,7 +115,8 @@ export async function POST(request: Request) {
         topics,
         readmeSummary,
       },
-      lists
+      lists,
+      { locale }
     );
 
     return NextResponse.json({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,35 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Sparkles, Check, X, FolderPlus } from "lucide-react";
 import { LIST_COLORS } from "@/lib/colors";
+
+// 标准分类列表（中英文）
+const STANDARD_CATEGORIES_ZH = [
+  "AI工具", "代理工具", "CLI工具", "前端", "后端", "数据库", "DevOps",
+  "编辑器", "开发工具", "下载工具", "媒体工具", "安全工具", "学习资源", "系统工具", "其他",
+];
+
+const STANDARD_CATEGORIES_EN = [
+  "AI Tools", "Proxy Tools", "CLI Tools", "Frontend", "Backend", "Database", "DevOps",
+  "Editor", "Dev Tools", "Download Tools", "Media Tools", "Security Tools", "Learning Resources", "System Tools", "Other",
+];
+
+// 关键词到分类的映射规则（返回索引）
+const CATEGORY_RULES: [RegExp, number][] = [
+  [/proxy|代理|clash|v2ray|sing-box|翻墙|科学上网|vpn|ss|ssr|trojan|shadowsocks|hysteria|xray|网络代理/i, 1], // Proxy Tools
+  [/\bai\b|llm|gpt|claude|ollama|机器学习|深度学习|ml\b|人工智能|chatbot|copilot|neural|transformer/i, 0], // AI Tools
+  [/devops|docker|k8s|kubernetes|ansible|terraform|ci\/cd|运维|部署|容器|helm|jenkins|github.?action/i, 6], // DevOps
+  [/editor|编辑器|vim|neovim|vscode|ide|emacs|sublime|编辑/i, 7], // Editor
+  [/\bcli\b|terminal|shell|命令行|console|bash|zsh|终端/i, 2], // CLI Tools
+  [/frontend|前端|react|vue|angular|svelte|next\.?js|nuxt|tailwind|css|html|webpack|vite|组件/i, 3], // Frontend
+  [/backend|后端|server|服务端|express|fastapi|gin|spring|nestjs|graphql|api/i, 4], // Backend
+  [/database|数据库|db\b|redis|mysql|postgres|sqlite|mongo|orm|prisma/i, 5], // Database
+  [/security|安全|加密|crypto|auth|password|密码|oauth|jwt/i, 11], // Security Tools
+  [/download|下载|aria2|youtube-dl|yt-dlp|torrent/i, 9], // Download Tools
+  [/media|视频|音频|图片|image|video|audio|ffmpeg|图像|音乐|播放/i, 10], // Media Tools
+  [/learn|学习|tutorial|教程|awesome|资源|course|书籍|book|文档|doc/i, 12], // Learning Resources
+  [/system|系统|windows|linux|mac|os|桌面|desktop|launcher/i, 13], // System Tools
+  [/dev|tool|工具|utility|lib|library|framework|sdk/i, 8], // Dev Tools
+];
 
 interface Repository {
   id: string;
@@ -60,6 +90,9 @@ export function BatchClassifyDialog({
   requestInterval = 1000,
   concurrency = 3,
 }: BatchClassifyDialogProps) {
+  const t = useTranslations("batchClassify");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
   const [phase, setPhase] = useState<"confirm" | "processing" | "review" | "done">("confirm");
   const [progress, setProgress] = useState(0);
   const [currentRepo, setCurrentRepo] = useState("");
@@ -146,7 +179,7 @@ export function BatchClassifyDialog({
 
       const repo = queue.shift()!;
       activeCount++;
-      setCurrentRepo(`${repo.fullName} (+${activeCount - 1} 并行)`);
+      setCurrentRepo(`${repo.fullName} (+${activeCount - 1} ${t("concurrent")})`);
 
       const result = await classifyRepo(repo);
       allResults.push(result);
@@ -174,76 +207,30 @@ export function BatchClassifyDialog({
     processResults(allResults);
   };
 
-  // 标准分类列表（与 openai.ts 保持一致）
-  const STANDARD_CATEGORIES = [
-    "AI工具",
-    "代理工具",
-    "CLI工具",
-    "前端",
-    "后端",
-    "数据库",
-    "DevOps",
-    "编辑器",
-    "开发工具",
-    "下载工具",
-    "媒体工具",
-    "安全工具",
-    "学习资源",
-    "系统工具",
-    "其他",
-  ];
+  // 根据语言选择标准分类
+  const STANDARD_CATEGORIES = locale === "en" ? STANDARD_CATEGORIES_EN : STANDARD_CATEGORIES_ZH;
 
   // 强制映射到标准分类
   const normalizeListName = (name: string): string => {
     const lowerName = name.toLowerCase();
 
-    // 首先检查是否已经是标准分类
-    for (const cat of STANDARD_CATEGORIES) {
-      if (cat === name || cat.toLowerCase() === lowerName) {
-        return cat;
+    // 首先检查是否已经是标准分类（中英文都检查）
+    for (let i = 0; i < STANDARD_CATEGORIES_ZH.length; i++) {
+      if (STANDARD_CATEGORIES_ZH[i] === name || STANDARD_CATEGORIES_ZH[i].toLowerCase() === lowerName ||
+          STANDARD_CATEGORIES_EN[i] === name || STANDARD_CATEGORIES_EN[i].toLowerCase() === lowerName) {
+        return STANDARD_CATEGORIES[i]; // 返回当前语言的分类
       }
     }
 
     // 关键词映射到标准分类
-    const rules: [RegExp, string][] = [
-      // 代理工具（优先匹配）
-      [/proxy|代理|clash|v2ray|sing-box|翻墙|科学上网|vpn|ss|ssr|trojan|shadowsocks|hysteria|xray|网络代理/i, "代理工具"],
-      // AI
-      [/\bai\b|llm|gpt|claude|ollama|机器学习|深度学习|ml\b|人工智能|chatbot|copilot|neural|transformer/i, "AI工具"],
-      // DevOps
-      [/devops|docker|k8s|kubernetes|ansible|terraform|ci\/cd|运维|部署|容器|helm|jenkins|github.?action/i, "DevOps"],
-      // 编辑器
-      [/editor|编辑器|vim|neovim|vscode|ide|emacs|sublime|编辑/i, "编辑器"],
-      // CLI
-      [/\bcli\b|terminal|shell|命令行|console|bash|zsh|终端/i, "CLI工具"],
-      // 前端
-      [/frontend|前端|react|vue|angular|svelte|next\.?js|nuxt|tailwind|css|html|webpack|vite|组件/i, "前端"],
-      // 后端
-      [/backend|后端|server|服务端|express|fastapi|gin|spring|nestjs|graphql|api/i, "后端"],
-      // 数据库
-      [/database|数据库|db\b|redis|mysql|postgres|sqlite|mongo|orm|prisma/i, "数据库"],
-      // 安全
-      [/security|安全|加密|crypto|auth|password|密码|oauth|jwt/i, "安全工具"],
-      // 下载
-      [/download|下载|aria2|youtube-dl|yt-dlp|torrent/i, "下载工具"],
-      // 媒体
-      [/media|视频|音频|图片|image|video|audio|ffmpeg|图像|音乐|播放/i, "媒体工具"],
-      // 学习资源
-      [/learn|学习|tutorial|教程|awesome|资源|course|书籍|book|文档|doc/i, "学习资源"],
-      // 系统工具
-      [/system|系统|windows|linux|mac|os|桌面|desktop|launcher/i, "系统工具"],
-      // 开发工具（兜底）
-      [/dev|tool|工具|utility|lib|library|framework|sdk/i, "开发工具"],
-    ];
-
-    for (const [pattern, category] of rules) {
+    for (const [pattern, categoryIndex] of CATEGORY_RULES) {
       if (pattern.test(lowerName) || pattern.test(name)) {
-        return category;
+        return STANDARD_CATEGORIES[categoryIndex];
       }
     }
 
     // 完全无法匹配，归入"其他"
-    return "其他";
+    return STANDARD_CATEGORIES[14]; // "其他" / "Other"
   };
 
   // 检查新 List 名称是否与现有 List 相似
@@ -458,13 +445,13 @@ export function BatchClassifyDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
-            AI 一键整理
+            {t("title")}
           </DialogTitle>
           <DialogDescription>
-            {phase === "confirm" && `将对 ${totalRepos} 个未分类仓库进行 AI 智能分类`}
-            {phase === "processing" && "正在处理中，请勿关闭窗口..."}
-            {phase === "review" && "以下是 AI 建议创建的新 List，请确认"}
-            {phase === "done" && "整理完成！"}
+            {phase === "confirm" && t("descConfirm", { count: totalRepos })}
+            {phase === "processing" && t("descProcessing")}
+            {phase === "review" && t("descReview")}
+            {phase === "done" && t("descDone")}
           </DialogDescription>
         </DialogHeader>
 
@@ -473,22 +460,22 @@ export function BatchClassifyDialog({
           <div className="space-y-4">
             <div className="p-4 bg-muted rounded-lg">
               <p className="text-sm">
-                <strong>处理说明：</strong>
+                <strong>{t("processInfo")}</strong>
               </p>
               <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                <li>• 仅处理未分类的仓库</li>
-                <li>• 匹配现有 List 的会自动归类</li>
-                <li>• 建议新 List 的会让您确认后创建</li>
-                <li>• 预计耗时：约 {Math.ceil(totalRepos / concurrency * (requestInterval / 1000 + 2) / 60)} 分钟（{concurrency} 并发）</li>
+                <li>• {t("infoUncategorized")}</li>
+                <li>• {t("infoAutoMatch")}</li>
+                <li>• {t("infoNewList")}</li>
+                <li>• {t("infoEstimate", { minutes: Math.ceil(totalRepos / concurrency * (requestInterval / 1000 + 2) / 60), concurrency })}</li>
               </ul>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={handleClose}>
-                取消
+                {tCommon("cancel")}
               </Button>
               <Button onClick={startProcessing} disabled={totalRepos === 0}>
                 <Sparkles className="mr-2 h-4 w-4" />
-                开始整理
+                {t("startOrganize")}
               </Button>
             </div>
           </div>
@@ -503,12 +490,12 @@ export function BatchClassifyDialog({
                 {results.length} / {totalRepos}
               </p>
               <p className="text-xs text-muted-foreground mt-1 truncate">
-                正在处理: {currentRepo}
+                {t("processing")}: {currentRepo}
               </p>
             </div>
             <div className="flex justify-center">
               <Button variant="outline" onClick={() => (abortRef.current = true)}>
-                取消
+                {tCommon("cancel")}
               </Button>
             </div>
           </div>
@@ -518,7 +505,7 @@ export function BatchClassifyDialog({
         {phase === "review" && (
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground">
-              已自动归类 {appliedCount} 个仓库到现有 List
+              {t("autoClassified", { count: appliedCount })}
             </div>
             <ScrollArea className="h-64 border rounded-lg p-2">
               {newListSuggestions.map((suggestion, index) => (
@@ -536,12 +523,12 @@ export function BatchClassifyDialog({
                       <FolderPlus className="h-4 w-4 text-primary shrink-0" />
                       <span className="font-medium">{suggestion.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        ({suggestion.repos.length} 个仓库)
+                        ({t("reposCount", { count: suggestion.repos.length })})
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                       {suggestion.repos.slice(0, 5).map((r) => r.name).join(", ")}
-                      {suggestion.repos.length > 5 && ` 等 ${suggestion.repos.length} 个`}
+                      {suggestion.repos.length > 5 && ` ${t("andMore", { count: suggestion.repos.length })}`}
                     </p>
                   </div>
                 </div>
@@ -549,18 +536,18 @@ export function BatchClassifyDialog({
             </ScrollArea>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setPhase("done")}>
-                跳过
+                {t("skip")}
               </Button>
               <Button onClick={applyNewLists} disabled={isApplying}>
                 {isApplying ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    创建中...
+                    {t("creating")}
                   </>
                 ) : (
                   <>
                     <Check className="mr-2 h-4 w-4" />
-                    创建选中的 List
+                    {t("createSelected")}
                   </>
                 )}
               </Button>
@@ -574,25 +561,25 @@ export function BatchClassifyDialog({
             <div className="p-4 bg-muted rounded-lg space-y-2">
               <div className="flex items-center gap-2 text-green-600">
                 <Check className="h-4 w-4" />
-                <span>成功分类: {successCount} 个仓库</span>
+                <span>{t("successCount", { count: successCount })}</span>
               </div>
               {failCount > 0 && (
                 <div className="flex items-center gap-2 text-red-600">
                   <X className="h-4 w-4" />
-                  <span>分类失败: {failCount} 个</span>
+                  <span>{t("failCount", { count: failCount })}</span>
                 </div>
               )}
               {newListSuggestions.filter((s) => s.selected).length > 0 && (
                 <div className="flex items-center gap-2 text-primary">
                   <FolderPlus className="h-4 w-4" />
                   <span>
-                    新建 List: {newListSuggestions.filter((s) => s.selected).length} 个
+                    {t("newListsCount", { count: newListSuggestions.filter((s) => s.selected).length })}
                   </span>
                 </div>
               )}
             </div>
             <div className="flex justify-end">
-              <Button onClick={handleClose}>完成</Button>
+              <Button onClick={handleClose}>{t("done")}</Button>
             </div>
           </div>
         )}
