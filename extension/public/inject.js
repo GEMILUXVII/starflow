@@ -234,7 +234,22 @@
   // ==========================================
   // 1. API Logic (Bundled inline)
   // ==========================================
-  const STARFLOW_API = 'http://localhost:3000/api';
+  const DEFAULT_API_URL = 'http://localhost:3000';
+  const STORAGE_KEY = 'starflow_api_url';
+  let starflowBaseUrl = DEFAULT_API_URL;
+
+  // Load saved API URL from storage
+  async function loadApiUrl() {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        const result = await chrome.storage.local.get(STORAGE_KEY);
+        starflowBaseUrl = result[STORAGE_KEY] || DEFAULT_API_URL;
+      }
+    } catch (e) {
+      console.log('Starflow: Using default API URL');
+    }
+  }
+  loadApiUrl();
 
   let extensionInvalidated = false;
 
@@ -376,7 +391,7 @@
       contentHtml = `
         <div class="sf-center">
           <p class="sf-muted">Please login to Starflow</p>
-          <a href="http://localhost:3000" target="_blank" class="sf-btn sf-btn-primary">Login</a>
+          <a href="${starflowBaseUrl}" target="_blank" class="sf-btn sf-btn-primary">Login</a>
         </div>`;
     } else if (!state.repo) {
       contentHtml = `
@@ -449,7 +464,7 @@
            <div class="sf-section">${noteSection}</div>
         </div>
         <div class="sf-footer">
-          <a href="http://localhost:3000" target="_blank">Open Starflow →</a>
+          <a href="${starflowBaseUrl}" target="_blank">Open Starflow →</a>
         </div>`;
     }
 

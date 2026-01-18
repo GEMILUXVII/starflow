@@ -1,4 +1,17 @@
-import { STARFLOW_API, type ApiMessage } from '../lib/api';
+import { type ApiMessage } from '../lib/api';
+
+const DEFAULT_API_URL = 'http://localhost:3000/api';
+const STORAGE_KEY = 'starflow_api_url';
+
+async function getApiUrl(): Promise<string> {
+  try {
+    const result = await browser.storage.local.get(STORAGE_KEY);
+    const baseUrl = result[STORAGE_KEY] || 'http://localhost:3000';
+    return `${baseUrl}/api`;
+  } catch {
+    return DEFAULT_API_URL;
+  }
+}
 
 export default defineBackground(() => {
   console.log('Starflow background service worker started');
@@ -14,6 +27,8 @@ export default defineBackground(() => {
 });
 
 async function handleMessage(message: ApiMessage) {
+  const STARFLOW_API = await getApiUrl();
+
   switch (message.type) {
     case 'IS_AUTHENTICATED':
       try {
